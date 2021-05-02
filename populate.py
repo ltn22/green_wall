@@ -18,7 +18,7 @@ desc = db["description"]
 res_wall = {
     "@type" : "green_wall",
     "name" : "IMT Lobby",
-    "Dimension" : [2.00, 1.00]
+    "dimension" : [2.00, 1.00]
     }
 
 
@@ -36,17 +36,20 @@ sensor = {
 sensor_id = add_elm(desc, "name", sensor)
 print ("sensor", sensor_id)
 
-humidity_location = {
-    "@type" : "humidity_loc",
-    "position" :[1, 0.5],
-    "wall" : wall_id,
-    "collector": sensor_id,
-    "hardware": "black arrow",
-    "address": {"analog": 16}
+for pos, pin in [([1, 0], 15), ([1, 0.5], 16), ([1, 1], 14), ([1, 1.5], 13),
+                 ([1.5, 0], 15), ([1.5, 0.5], 16), ([1.5, 1], 14), ([1.5, 1.5], 13),
+                 ([2, 0], 15), ([2, 0.5], 16), ([2, 1], 14), ([2, 1.5], 13)]:
+    humidity_location = {
+        "@type" : "humidity_loc",
+        "position" :pos,
+        "wall" : wall_id,
+        "collector": sensor_id,
+        "hardware": "black arrow",
+        "address": {"analog": pin}
     }
 
-humidity_pos_id = add_elm(desc, "position", humidity_location)
-print ("position", humidity_pos_id)
+    humidity_pos_id = add_elm(desc, "position", humidity_location)
+    print ("position", humidity_pos_id)
 
         
     
