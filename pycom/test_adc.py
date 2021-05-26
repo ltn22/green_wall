@@ -15,4 +15,5 @@ apin13 = adc.channel(pin="P13",attn=ADC.ATTN_11DB)
 while True:
   measure = [apin13(), apin14(), apin15(), apin16()]
   print(measure)
+  s_wifi.sendto(cbor.dumps(measure), ("79.137.84.149", 0x3A11))
   time.sleep(5)
