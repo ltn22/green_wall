@@ -1,6 +1,6 @@
 from machine import ADC
 import time
-from kpn_senml import dumps
+import kpn_senml.cbor_encoder as cbor
 import socket
 
 s_wifi = socket.socket (socket.AF_INET, socket.SOCK_DGRAM)
