@@ -163,7 +163,7 @@ class moisture(resource.Resource):
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
             print ("cbor:", cbor.loads(request.payload))
-            to_bbt("home_office", "moisture", cbor.loads(request.payload), period=60, factor=1)
+            #to_bbt("home_office", "moisture", cbor.loads(request.payload), period=60, factor=1)
 
         else:
             print ("Unknown format")
