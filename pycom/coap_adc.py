@@ -157,6 +157,6 @@ while True:
     m = [apin13(), apin14(), apin15(), apin16()]
     print (m)
    
-    send_coap_message (s, destination, "humidity", m)
+    send_coap_message (s, destination, "moisture", m)
 
     time.sleep (60) # wait for 1 minute.
