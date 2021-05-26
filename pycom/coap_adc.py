@@ -15,7 +15,7 @@ messages (4.xx and 5.xx) and not taken into account by the program.
 #SERVER = "LORAWAN" # change to your server's IP address, or SIGFOX or LORAWAN
 #SERVER="SIGFOX"
 SERVER = "79.137.84.149" # change to your server's IP address, or SIGFOX or LORAWAN
-PORT   = 0x3a11
+PORT   = 5683
 destination = (SERVER, PORT)
 
 import CoAP
