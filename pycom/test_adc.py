@@ -1,6 +1,9 @@
 from machine import ADC
 import time
+from kpn_senml import dumps
+import socket
 
+s_wifi = socket.socket (socket.AF_INET, socket.SOCK_DGRAM)
 
 adc=ADC()
 
@@ -10,5 +13,6 @@ apin14 = adc.channel(pin="P14",attn=ADC.ATTN_11DB)
 apin13 = adc.channel(pin="P13",attn=ADC.ATTN_11DB)
 
 while True:
-  print(apin13(), apin14(), apin15(), apin16())
+  measure = [apin13(), apin14(), apin15(), apin16()]
+  print(measure)
   time.sleep(5)
