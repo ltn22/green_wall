@@ -31,7 +31,7 @@ import beebotte
 
 from pymongo import MongoClient
 
-client = MongoClient()
+client = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
 
 sensor=client.green_wall.description.find_one ({"@type":"sensor", "name": "pikachu_16"})
 print (sensor)
