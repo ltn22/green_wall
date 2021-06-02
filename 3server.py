@@ -31,7 +31,7 @@ import beebotte
 
 from pymongo import MongoClient
 
-client = MongoClient()
+client = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
 
 sensor=client.green_wall.description.find_one ({"@type":"sensor", "name": "pikachu_16"})
 print (sensor)
@@ -162,7 +162,11 @@ class moisture(resource.Resource):
         if ct == aiocoap.numbers.media_types_rev['text/plain']:
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
-            print ("cbor:", cbor.loads(request.payload))
+            j = cbor.loads(request.payload)
+
+            mng_dat = {"measure": j,
+                        "date" :  datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()}
+            client.green_wall.raw.insert_one(mng_dat)
             #to_bbt("home_office", "moisture", cbor.loads(request.payload), period=60, factor=1)
 
         else:
