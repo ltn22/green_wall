@@ -85,7 +85,7 @@ else: # WIFI with IP address
     MTU = 200 # maximum packet size, could be higher
 
 # -----------------  SENSORS -----------------------
-
+from machine import ADC
 adc=ADC()
 
 apin16 = adc.channel(pin="P16",attn=ADC.ATTN_11DB)
