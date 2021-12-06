@@ -1,0 +1,25 @@
+This is MSc IoT Project by Kaustubh Joshi and Carlo Delgado
+
+Prroject Info
+
+Terminologies
+
+Sensor   - To measure humidity
+Actuator  - Water Pump
+Wall  - Green wall 
+
+
+Requirements for Communication between PyCOM and Web Server (COAP API)
+
+To store the humidity data collected using sensors and store it in MongoDB using COAP  api on Web Server - use of CBOR for data transmission.
+Utilisation of SCHC for header compression 
+To make this code extensible so that in future we can also store the measurements for temperature and pressure.
+Send data from actuator to COAP api on web server - how much time it watered the wall, when was the last time it watered the wall
+Store the data from actuator in the MongoDB database.
+Based on the logic in the web server API, send the actuator the parameters to water the wall.
+
+Requirements for Communication between end-user and web server (REST API)
+
+Fetch the current state of the wall, in terms of level of humidity
+Fetch the data of history of the process of watering the wall - the frequency, time, duration etc. (only far last n hours/days)
+Fetch the humidity levels of a particular area of the wall (a particular sensor) for a particular period of time.
