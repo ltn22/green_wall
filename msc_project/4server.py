@@ -21,6 +21,7 @@ import logging
 import binascii
 import pprint
 import asyncio
+import socket
 
 import aiocoap.resource as resource
 import aiocoap
@@ -183,14 +184,30 @@ def main():
     # Resource tree creation
     root = resource.Site()
 
+    """In the following lines, we added a block to use another port that is not 
+    the default CoAP port, it will be substituted by the 5684 port temporarely
+    as we make the corresponding tests (In order to do not affect Gwen's database 
+    format"""
+    # Comment following block code to use the default CoAP port
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.connect(("8.8.8.8", 80)) # connect outside to get local IP address
+        ip_addr = s.getsockname()[0]
+
+    port = 5684
+    print ("++++++++++++++++++++++++++++++++++++++++++++")
+    print ("server running on ", ip_addr, "at port", port)
+    #Comment up to here
+
     root.add_resource(['temp'], temperature())
     root.add_resource(['amp'], ampere())
     root.add_resource(['memory'], memory())
     root.add_resource(['moisture'], moisture())
     root.add_resource(['proxy'], generic_sensor())
     
-
-    asyncio.Task(aiocoap.Context.create_server_context(root))
+    #Uncomment next line to use Default CoAP port
+    #asyncio.Task(aiocoap.Context.create_server_context(root))
+    #Comment next line to use Default CoAP port 
+    asyncio.Task(aiocoap.Context.create_server_context(root,bind=(ip_addr, port)))
 
     asyncio.get_event_loop().run_forever()
 
