@@ -81,7 +81,7 @@ class generic_sensor(resource.PathCapable):
         print ("render", request.opt.uri_path)
         devEUI = request.opt.uri_path[0]
         measurement = request.opt.uri_path[1]
-
+        print ("KKKKKKKKKKK -----")
         print (devEUI, measurement)
 
         ct = request.opt.content_format or \
