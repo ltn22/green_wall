@@ -135,23 +135,6 @@ class ampere(resource.Resource):
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
         return aiocoap.Message(code=aiocoap.CHANGED)
 
-class memory(resource.Resource):
-    async def render_post(self, request):
-
-        print ("request mem", request, request.opt.content_format)
-        ct = request.opt.content_format or \
-                aiocoap.numbers.media_types_rev['text/plain']
-
-        if ct == aiocoap.numbers.media_types_rev['text/plain']:
-            print ("text:", request.payload)
-        elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
-            print ("cbor:", cbor.loads(request.payload))
-            to_bbt("home_office", "memory", cbor.loads(request.payload), period=60, factor=1)
-
-        else:
-            print ("Unknown format")
-            return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
-        return aiocoap.Message(code=aiocoap.CHANGED)
 
 class moisture(resource.Resource):
     async def render_post(self, request):
@@ -202,8 +185,7 @@ def main():
 
     root.add_resource(['temp'], temperature())
     root.add_resource(['amp'], ampere())
-    root.add_resource(['memory'], memory())
-    root.add_resource(['m'], moisture())
+    root.add_resource(['mo'], moisture())
     root.add_resource(['proxy'], generic_sensor())
     
     #Uncomment next line to use Default CoAP port
