@@ -147,7 +147,7 @@ class moisture(resource.Resource):
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
             j = cbor.loads(request.payload)
-            print ("KKKKKKK - "+ j)
+            print ("KKKK - The MAC ADDRESS is- "+ j[0])
             mng_dat = {"measure": j,
                         "date" :  datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()}
             client.green_wall.raw2.insert_one(mng_dat)

@@ -171,18 +171,22 @@ while True:
     try:
         while wlan.isconnected():
             pycom.heartbeat(True) # turn led to heartbeat
-            m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+            #send the mac address of the device as an indentifier
+            mac_address = binascii.hexlify(wlan.mac()[1]).decode('utf-8')
+            print("The mac address is: " + mac_address)
+            m = [mac_address, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print (m)
-            send_coap_message (s, destination, "moisture", m)
+            #send_coap_message (s, destination, "moisture", m)
             send_coap_message (s, destination2, "moisture", m)
             time.sleep (5) # wait for 1 minute.
 
         while not wlan.isconnected():
             pycom.heartbeat(False) # turn led to white
             print ("WiFi disconnected")
-            wlan.ifconfig(config=('10.51.0.241', '255.255.255.0', '10.51.0.1', '192.108.119.134'))
+            wlan.ifconfig(config=('10.51.0.245', '255.255.255.0', '10.51.0.1', '192.108.119.134'))
+            wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
             #wlan.connect('lala', auth=(network.WLAN.WPA2, '12341234'))
-            wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+            #wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
             time.sleep(1)
             pycom.rgbled(0x7f0000) # red
             time.sleep(1)
