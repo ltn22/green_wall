@@ -201,7 +201,7 @@ def main():
     root.add_resource(['temp'], temperature())
     root.add_resource(['amp'], ampere())
     root.add_resource(['memory'], memory())
-    root.add_resource(['moisture'], moisture())
+    root.add_resource(['mo'], moisture())
     root.add_resource(['proxy'], generic_sensor())
     
     #Uncomment next line to use Default CoAP port
