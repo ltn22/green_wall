@@ -156,6 +156,8 @@ class memory(resource.Resource):
 class moisture(resource.Resource):
     async def render_post(self, request):
 
+        qp = request.opt.uri_query()
+        print ("KKKKKK :" + qp)
         print ("request mem", request, request.opt.content_format)
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
@@ -201,7 +203,7 @@ def main():
     root.add_resource(['temp'], temperature())
     root.add_resource(['amp'], ampere())
     root.add_resource(['memory'], memory())
-    root.add_resource(['mo'], moisture())
+    root.add_resource(['m'], moisture())
     root.add_resource(['proxy'], generic_sensor())
     
     #Uncomment next line to use Default CoAP port
