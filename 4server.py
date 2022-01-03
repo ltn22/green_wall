@@ -81,7 +81,7 @@ class generic_sensor(resource.PathCapable):
         print ("render", request.opt.uri_path)
         devEUI = request.opt.uri_path[0]
         measurement = request.opt.uri_path[1]
-        print ("KKKKKKKKKKK -----")
+    
         print (devEUI, measurement)
 
         ct = request.opt.content_format or \
@@ -138,9 +138,7 @@ class ampere(resource.Resource):
 
 class moisture(resource.Resource):
     async def render_post(self, request):
-
-        qp = request.opt.uri_query()
-        print ("KKKKKK :" + qp)
+     
         print ("request mem", request, request.opt.content_format)
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
@@ -149,7 +147,7 @@ class moisture(resource.Resource):
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
             j = cbor.loads(request.payload)
-
+            print ("KKKKKKK - "+ j)
             mng_dat = {"measure": j,
                         "date" :  datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()}
             client.green_wall.raw2.insert_one(mng_dat)
@@ -185,7 +183,7 @@ def main():
 
     root.add_resource(['temp'], temperature())
     root.add_resource(['amp'], ampere())
-    root.add_resource(['mo/'], moisture())
+    root.add_resource(['moisture'], moisture())
     root.add_resource(['proxy'], generic_sensor())
     
     #Uncomment next line to use Default CoAP port
