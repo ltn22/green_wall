@@ -167,7 +167,7 @@ while True:
     print (m)
 #    pycom.rgbled(0x00FF00)
 #    pycom.rgbled(0x00FF00)
-    #send_coap_message (s, destination, "moisture", m)
+    send_coap_message (s, destination, "moisture", m)
     send_coap_message (s, destination2, "moisture", m)
 #    pycom.rgbled(0x000000)
     time.sleep (10) # wait for 1 minute.
