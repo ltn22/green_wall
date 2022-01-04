@@ -151,9 +151,8 @@ class moisture(resource.Resource):
             current_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
             print ("KKKK - The MAC ADDRESS is- "+ mac_address)
             #if not found, add the device details in the device table in MongoDB 
-            device = client.green_wall.devices.find_one({"device_mac_addr": mac_address)}
+            device = client.green_wall.devices.find_one({"device_mac_addr": mac_address})
             if device:
-                myquery = { "address": "Valley 345" }
                 newvalues = { "$set": { "last_updated_at": current_time } }
                 client.green_wall.devices.update_one("device_mac_addr": mac_address,newvalues)
             else:    
