@@ -8,6 +8,7 @@ import machine
 wlan = network.WLAN(mode=network.WLAN.STA)
 
 #Starts a Yellow Flag to show it started booting
+pycom.heartbeat(False)
 pycom.rgbled(0x7f7f00)
 print("Scanning for known wifi nets")
 wlan.ifconfig(config=('10.51.0.241', '255.255.255.0', '10.51.0.1', '192.108.119.134'))
