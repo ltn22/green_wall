@@ -154,7 +154,7 @@ class moisture(resource.Resource):
             device = client.green_wall.devices.find_one({"device_mac_addr": mac_address})
             if device:
                 newvalues = { "$set": { "last_updated_at": current_time } }
-                client.green_wall.devices.update_one("device_mac_addr": mac_address,newvalues)
+                client.green_wall.devices.update_one({"device_mac_addr": mac_address}, newvalues)
             else:    
                 device_data = { "device_mac_addr": mac_address, "last_updated_at": current_time}
                 client.green_wall.devices.insert_one(device_data)
