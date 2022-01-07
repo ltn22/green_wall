@@ -109,16 +109,16 @@ class humidity_sensor(resource.PathCapable):
             # store the measurements
             for m in measurements:
                 sensor_name = "S" + str(sensor_counter) + "P"+ str(sensor_pin_counter)
-                sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device.id})
+                sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device._id})
                 if sensor:
                     newvalues = { "$set": { "last_updated_at": current_time } }
-                    client.green_wall.sensors.update_one({"_id": sensor.id}, newvalues)    
+                    client.green_wall.sensors.update_one({"_id": sensor._id}, newvalues)    
                 else:    
-                    sensor_data = { "name":sensor_name, "device_id": device.id, "last_updated_at": current_time}
+                    sensor_data = { "name":sensor_name, "device_id": device._id, "last_updated_at": current_time}
                     client.green_wall.sensors.insert_one(sensor_data)
-                    sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device.id})
+                    sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device._id})
                 #add the measurement for the sensor
-                measurment_data = { "sensor_id": sensor.id, "type": "humidity", "value": m, "recorded_at": current_time}
+                measurment_data = { "sensor_id": sensor._id, "type": "humidity", "value": m, "recorded_at": current_time}
                 client.green_wall.measurements.insert_one(device_data)
                 counter += 1
                 sensor_pin_counter += 1
