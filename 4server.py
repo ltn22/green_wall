@@ -101,8 +101,8 @@ class generic_sensor(resource.PathCapable):
     async def needs_blockwise_assembly(self, request):
         return False
         
-class moisture(resource.Resource):
-    async def render_post(self, request):
+class moisture(resource.PathCapable):
+    async def render(self, request):
      
         print ("render", request.opt.uri_path)
         unique_id = request.opt.uri_path[0]
