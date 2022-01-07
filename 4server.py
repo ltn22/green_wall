@@ -79,10 +79,10 @@ class generic_sensor(resource.PathCapable):
 
     async def render(self, request):
         print ("render", request.opt.uri_path)
-        devEUI = request.opt.uri_path[0]
-        measurement = request.opt.uri_path[1]
+        mac_address = request.opt.uri_path[0]
+        #measurement = request.opt.uri_path[1]
     
-        print (devEUI, measurement)
+        print ("KKKKK " + mac_address)
 
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
@@ -149,7 +149,7 @@ class moisture(resource.Resource):
             j = cbor.loads(request.payload)
             mac_address = j[0]
             current_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
-            print ("KKKK - The MAC ADDRESS is- "+ mac_address)
+            #print ("KKKK - The MAC ADDRESS is- "+ mac_address)
             #if not found, add the device details in the device table in MongoDB 
             device = client.green_wall.devices.find_one({"device_mac_addr": mac_address})
             if device:
