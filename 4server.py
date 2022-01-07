@@ -108,7 +108,7 @@ class humidity_sensor(resource.PathCapable):
             sensor_pin_counter = 13
             # store the measurements
             for m in measurements:
-                sensor_name = "S" + sensor_counter + "P"+ sensor_pin_counter
+                sensor_name = "S" + str(sensor_counter) + "P"+ str(sensor_pin_counter)
                 sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device.id})
                 if sensor:
                     newvalues = { "$set": { "last_updated_at": current_time } }
