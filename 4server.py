@@ -120,7 +120,7 @@ class humidity_sensor(resource.PathCapable):
                 #add the measurement for the sensor
                 measurement_data = { "sensor_id": sensor['_id'], "type": "humidity", "value": m, "recorded_at": current_time}
                 client.green_wall.measurements.insert_one(measurement_data)
-                counter += 1
+                sensor_counter += 1
                 sensor_pin_counter += 1
 
             mng_dat = {"measure": m,
