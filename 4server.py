@@ -106,7 +106,7 @@ class moisture(resource.Resource):
      
         print ("render", request.opt.uri_path)
         unique_id = request.opt.uri_path[0]
-
+        print ("KKKKKK - the unique id is:", unique_id)
         print ("request mem", request, request.opt.content_format)
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
