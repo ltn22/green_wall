@@ -75,11 +75,11 @@ def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
     
     bbt.writeBulk(channel, data_list)
 
-class generic_sensor(resource.PathCapable):
+class humidity_sensor(resource.PathCapable):
 
     async def render(self, request):
         print ("render", request.opt.uri_path)
-        mac_address = request.opt.uri_path[0]
+        unique_id = request.opt.uri_path[0]
         #measurement = request.opt.uri_path[1]
     
         print ("KKKKK The unique id is: " + mac_address)
@@ -91,7 +91,20 @@ class generic_sensor(resource.PathCapable):
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
             print ("cbor:", cbor.loads(request.payload))
-            #to_bbt(devEUI, measurement, cbor.loads(request.payload), period=60, factor=0.01)
+            m = cbor.loads(request.payload)
+            current_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
+            #if not found, add the device details in the device table in MongoDB 
+            device = client.green_wall.devices.find_one({"unique_id": unique_id})
+            if device:
+                newvalues = { "$set": { "last_updated_at": current_time } }
+                client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
+            else:    
+                device_data = { "unique_id": unique_id, "last_updated_at": current_time}
+                client.green_wall.devices.insert_one(device_data)
+
+            mng_dat = {"measure": m,
+                        "date" : current_time}
+            client.green_wall.raw2.insert_one(mng_dat))
         else:
             print ("Unknown format")
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
@@ -159,7 +172,7 @@ def main():
     #Comment up to here
 
     root.add_resource(['moisture'], moisture())
-    root.add_resource(['humidity'], generic_sensor())
+    root.add_resource(['humidity'], humidity_sensor())
     
     #Uncomment next line to use Default CoAP port
     #asyncio.Task(aiocoap.Context.create_server_context(root))
