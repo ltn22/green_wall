@@ -82,7 +82,7 @@ class humidity_sensor(resource.PathCapable):
         unique_id = request.opt.uri_path[0]
         #measurement = request.opt.uri_path[1]
     
-        print ("KKKKK The unique id is: " + unique_id)
+        print ("The unique id is: " + unique_id)
 
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
@@ -91,7 +91,7 @@ class humidity_sensor(resource.PathCapable):
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
             print ("cbor:", cbor.loads(request.payload))
-            m = cbor.loads(request.payload)
+            measurements = cbor.loads(request.payload)
             current_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
             #if not found, add the device details in the device table in MongoDB 
             device = client.green_wall.devices.find_one({"unique_id": unique_id})
@@ -101,6 +101,27 @@ class humidity_sensor(resource.PathCapable):
             else:    
                 device_data = { "unique_id": unique_id, "last_updated_at": current_time}
                 client.green_wall.devices.insert_one(device_data)
+                device = client.green_wall.devices.find_one({"unique_id": unique_id})
+            
+            current_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
+            sensor_counter = 1
+            sensor_pin_counter = 13
+            # store the measurements
+            for m in measurements:
+                sensor_name = "S" + sensor_counter + "P"+ sensor_pin_counter
+                sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device.id})
+                if sensor:
+                    newvalues = { "$set": { "last_updated_at": current_time } }
+                    client.green_wall.sensors.update_one({"_id": sensor.id}, newvalues)    
+                else:    
+                    sensor_data = { "name":sensor_name, "device_id": device.id, "last_updated_at": current_time}
+                    client.green_wall.sensors.insert_one(sensor_data)
+                    sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device.id})
+                #add the measurement for the sensor
+                measurment_data = { "sensor_id": sensor.id, "type": "humidity", "value": m, "recorded_at": current_time}
+                client.green_wall.measurements.insert_one(device_data)
+                counter += 1
+                sensor_pin_counter += 1
 
             mng_dat = {"measure": m,
                         "date" : current_time}
@@ -114,42 +135,7 @@ class humidity_sensor(resource.PathCapable):
     async def needs_blockwise_assembly(self, request):
         return False
         
-class moisture(resource.PathCapable):
-    async def render(self, request):
-     
-        print ("render", request.opt.uri_path)
-        unique_id = request.opt.uri_path[0]
-        print ("KKKKKK - the unique id is:", unique_id)
-        print ("request mem", request, request.opt.content_format)
-        ct = request.opt.content_format or \
-                aiocoap.numbers.media_types_rev['text/plain']
-
-        if ct == aiocoap.numbers.media_types_rev['text/plain']:
-            print ("text:", request.payload)
-        elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
-            m = cbor.loads(request.payload)
-            current_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
-            #if not found, add the device details in the device table in MongoDB 
-            device = client.green_wall.devices.find_one({"unique_id": unique_id})
-            if device:
-                newvalues = { "$set": { "last_updated_at": current_time } }
-                client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
-            else:    
-                device_data = { "unique_id": unique_id, "last_updated_at": current_time}
-                client.green_wall.devices.insert_one(device_data)
-
-            mng_dat = {"measure": m,
-                        "date" : current_time}
-            client.green_wall.raw2.insert_one(mng_dat)
-            #to_bbt("home_office", "moisture", cbor.loads(request.payload), period=60, factor=1)
-
-        else:
-            print ("Unknown format")
-            return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
-        return aiocoap.Message(code=aiocoap.CHANGED)
-
 # logging setup
-
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("coap-server").setLevel(logging.DEBUG)
 
@@ -171,7 +157,6 @@ def main():
     print ("server running on ", ip_addr, "at port", port)
     #Comment up to here
 
-    root.add_resource(['moisture'], moisture())
     root.add_resource(['humidity'], humidity_sensor())
     
     #Uncomment next line to use Default CoAP port
