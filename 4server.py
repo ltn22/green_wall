@@ -101,44 +101,12 @@ class generic_sensor(resource.PathCapable):
     async def needs_blockwise_assembly(self, request):
         return False
         
-class temperature(resource.Resource):
-    async def render_post(self, request):
-
-        print ("request temp", request, request.opt.content_format)
-        ct = request.opt.content_format or \
-                aiocoap.numbers.media_types_rev['text/plain']
-
-        if ct == aiocoap.numbers.media_types_rev['text/plain']:
-            print ("text:", request.payload)
-        elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
-            print ("cbor:", cbor.loads(request.payload))
-            to_bbt("home_office", "temperature", cbor.loads(request.payload), period=60, factor=0.01)
-        else:
-            print ("Unknown format")
-            return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
-        return aiocoap.Message(code=aiocoap.CHANGED)
-
-class ampere(resource.Resource):
-    async def render_post(self, request):
-
-        print ("request amp", request, request.opt.content_format)
-        ct = request.opt.content_format or \
-                aiocoap.numbers.media_types_rev['text/plain']
-
-        if ct == aiocoap.numbers.media_types_rev['text/plain']:
-            print ("text:", request.payload)
-        elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
-            print ("cbor:", cbor.loads(request.payload))
-            to_bbt("home_office", "ampere", cbor.loads(request.payload), period=60, factor=0.001)
-        else:
-            print ("Unknown format")
-            return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
-        return aiocoap.Message(code=aiocoap.CHANGED)
-
-
 class moisture(resource.Resource):
     async def render_post(self, request):
      
+        print ("render", request.opt.uri_path)
+        unique_id = request.opt.uri_path[0]
+
         print ("request mem", request, request.opt.content_format)
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
@@ -146,22 +114,18 @@ class moisture(resource.Resource):
         if ct == aiocoap.numbers.media_types_rev['text/plain']:
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
-            j = cbor.loads(request.payload)
-            mac_address = j[0]
+            m = cbor.loads(request.payload)
             current_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
-            #print ("KKKK - The MAC ADDRESS is- "+ mac_address)
             #if not found, add the device details in the device table in MongoDB 
-            device = client.green_wall.devices.find_one({"device_mac_addr": mac_address})
+            device = client.green_wall.devices.find_one({"unique_id": unique_id})
             if device:
                 newvalues = { "$set": { "last_updated_at": current_time } }
-                client.green_wall.devices.update_one({"device_mac_addr": mac_address}, newvalues)
+                client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
             else:    
-                device_data = { "device_mac_addr": mac_address, "last_updated_at": current_time}
+                device_data = { "unique_id": unique_id, "last_updated_at": current_time}
                 client.green_wall.devices.insert_one(device_data)
 
-            #remove the mac address from the measures input
-            del j[0] 
-            mng_dat = {"measure": j,
+            mng_dat = {"measure": m,
                         "date" : current_time}
             client.green_wall.raw2.insert_one(mng_dat)
             #to_bbt("home_office", "moisture", cbor.loads(request.payload), period=60, factor=1)
@@ -194,8 +158,6 @@ def main():
     print ("server running on ", ip_addr, "at port", port)
     #Comment up to here
 
-    root.add_resource(['temp'], temperature())
-    root.add_resource(['amp'], ampere())
     root.add_resource(['moisture'], moisture())
     root.add_resource(['proxy'], generic_sensor())
     
