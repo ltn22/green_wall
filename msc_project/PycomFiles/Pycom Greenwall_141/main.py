@@ -118,7 +118,7 @@ REPORT_PERIOD = 60 # send a frame every 60 sample (1 hour)
 
 
 sigfox_MID = 1 # when SCHC is used for Sigfox
-def send_coap_message(sock, destination, uri_path, message):
+def send_coap_message(sock, destination, uri_path, message, unique_id = None):
     if destination[0] == "SIGFOX": # do SCHC compression
         global sigfox_MID
 
@@ -147,6 +147,9 @@ def send_coap_message(sock, destination, uri_path, message):
     coap = CoAP.Message()
     coap.new_header(type=CoAP.NON, code=CoAP.POST)
     coap.add_option (CoAP.Uri_path, uri_path)
+    if unique_id:
+        coap.add_option(CoAP.Uri_path, unique_id)
+    # /proxy/mac_address
     coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
     coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
     coap.add_payload(cbor.dumps(message))
@@ -174,10 +177,10 @@ while True:
             #send the mac address of the device as an indentifier
             mac_address = binascii.hexlify(wlan.mac()[1]).decode('utf-8')
             print("The mac address is: " + mac_address)
-            m = [mac_address, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+            m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print (m)
             #send_coap_message (s, destination, "moisture", m)
-            send_coap_message (s, destination2, "moisture", m)
+            send_coap_message (s, destination2, "humidity", m, mac_address)
             time.sleep (5) # wait for 1 minute.
 
         while not wlan.isconnected():
