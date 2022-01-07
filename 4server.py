@@ -104,7 +104,7 @@ class humidity_sensor(resource.PathCapable):
 
             mng_dat = {"measure": m,
                         "date" : current_time}
-            client.green_wall.raw2.insert_one(mng_dat))
+            client.green_wall.raw2.insert_one(mng_dat)
         else:
             print ("Unknown format")
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
