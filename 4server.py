@@ -82,7 +82,7 @@ class generic_sensor(resource.PathCapable):
         mac_address = request.opt.uri_path[0]
         #measurement = request.opt.uri_path[1]
     
-        print ("KKKKK " + mac_address)
+        print ("KKKKK The unique id is: " + mac_address)
 
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
@@ -91,7 +91,7 @@ class generic_sensor(resource.PathCapable):
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
             print ("cbor:", cbor.loads(request.payload))
-            to_bbt(devEUI, measurement, cbor.loads(request.payload), period=60, factor=0.01)
+            #to_bbt(devEUI, measurement, cbor.loads(request.payload), period=60, factor=0.01)
         else:
             print ("Unknown format")
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
@@ -159,7 +159,7 @@ def main():
     #Comment up to here
 
     root.add_resource(['moisture'], moisture())
-    root.add_resource(['proxy'], generic_sensor())
+    root.add_resource(['humidity'], generic_sensor())
     
     #Uncomment next line to use Default CoAP port
     #asyncio.Task(aiocoap.Context.create_server_context(root))
