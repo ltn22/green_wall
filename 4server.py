@@ -82,7 +82,7 @@ class humidity_sensor(resource.PathCapable):
         unique_id = request.opt.uri_path[0]
         #measurement = request.opt.uri_path[1]
     
-        print ("KKKKK The unique id is: " + mac_address)
+        print ("KKKKK The unique id is: " + unique_id)
 
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
