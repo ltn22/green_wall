@@ -15,7 +15,7 @@ mongo = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
 
 # app.config["MONGO_DBNAME"] = 'green_wall'
 # app.config["MONGO_URI"] = 'mongodb://gwen:thesard_errant@127.0.0.1'
-# app.config['SECRET_KEY'] = os.urandom(24)
+app.config['SECRET_KEY'] = os.urandom(24)
 
 #mongo = PyMongo(app)
 
