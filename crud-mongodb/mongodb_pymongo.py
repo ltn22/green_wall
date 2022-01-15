@@ -11,8 +11,13 @@ app= Flask(__name__)
 
 
 #To connect using a driver via the standard MongoDB URI
-mongo = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
+#mongo = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
 
+app.config["MONGO_DBNAME"] = 'green_wall'
+app.config["MONGO_URI"] = 'mongodb://gwen:thesard_errant@127.0.0.1/green_wall'
+app.config['SECRET_KEY'] = os.urandom(24)
+
+mongo = PyMongo(app)
 
 #mongo = PyMongo(app)
 
@@ -28,7 +33,7 @@ class AddForm(FlaskForm):
 #===============================
 @app.route('/home')
 def index():
-	device_list = mongo.green_wall.devices.find()
+	device_list = mongo.db.devices.find()
 	return render_template("result.html",device_list=device_list)
 
 #===============================
@@ -49,18 +54,18 @@ class JSONEncoder(json.JSONEncoder):
 #Create Document in the collection
 #===================================
 
-""" @app.route('/add', methods=["GET","POST"])
+@app.route('/add', methods=["GET","POST"])
 def add():
 	form = AddForm()
 	if form.validate_on_submit():
 		name_field = form.name.data
-		language_field = form.language.data
-		data = ({'name':name_field, 'language': language_field})
-		user = mongo.green_wall.users
-		user.insert(data)
+		unique_id_field = form.unique_id.data
+		data = ({'name':name_field, 'unique_id': unique_id_field})
+		devices = mongo.db.devices
+		devices.insert(data)
 		return JSONEncoder().encode(data)
 	return render_template("add.html", form = form)
- """
+
 #===================================
 #Updating form
 #===================================
@@ -68,7 +73,7 @@ def add():
 @app.route('/updateform')
 def updateform():
 	id = request.args.get('id')
-	devices = mongo.green_wall.devices
+	devices = mongo.db.devices
 	result_id = devices.find_one({'_id':ObjectId(id)})
 	form = AddForm(name=result_id['name'],unique_id=result_id['unique_id'])
 	return render_template("update.html", form=form, id = id)
@@ -79,10 +84,10 @@ def updateform():
 from bson import json_util
 @app.route('/update/<id>', methods=["POST"])
 def update(id):
-	user = mongo.green_wall.users
+	devices = mongo.db.devices
 	form = AddForm()
 	if form.validate_on_submit():
-		result = user.update({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'language': form.language.data}})
+		result = devices.update({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'unique_id': form.unique_id.data}})
 	return render_template("update.html",id=id,form=form)
 
 #===================================
@@ -91,7 +96,7 @@ def update(id):
 
 @app.route('/delete/<id>')
 def delete(id):
-	devices = mongo.green_wall.devices
+	devices = mongo.db.devices
 	delete_record = devices.delete_one({'_id':ObjectId(id)})
 	return redirect(url_for('index'))
 
