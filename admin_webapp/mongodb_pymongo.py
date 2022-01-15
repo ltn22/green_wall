@@ -60,7 +60,7 @@ def add():
 		unique_id_field = form.unique_id.data
 		data = ({'name':name_field, 'unique_id': unique_id_field})
 		devices = mongo.green_wall.devices
-		devices.insert(data)
+		devices.insert_one(data)
 		return JSONEncoder().encode(data)
 	return render_template("add.html", form = form)
 
