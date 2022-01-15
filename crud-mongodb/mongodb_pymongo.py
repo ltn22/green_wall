@@ -28,7 +28,7 @@ class AddForm(FlaskForm):
 #===============================
 @app.route('/home')
 def index():
-	device_list = mongo.db.devices.find()
+	device_list = mongo.green_wall.devices.find()
 	return render_template("result.html",device_list=device_list)
 
 #===============================
@@ -56,7 +56,7 @@ def add():
 		name_field = form.name.data
 		language_field = form.language.data
 		data = ({'name':name_field, 'language': language_field})
-		user = mongo.db.users
+		user = mongo.green_wall.users
 		user.insert(data)
 		return JSONEncoder().encode(data)
 	return render_template("add.html", form = form)
@@ -68,7 +68,7 @@ def add():
 @app.route('/updateform')
 def updateform():
 	id = request.args.get('id')
-	devices = mongo.db.devices
+	devices = mongo.green_wall.devices
 	result_id = devices.find_one({'_id':ObjectId(id)})
 	form = AddForm(name=result_id['name'],unique_id=result_id['unique_id'])
 	return render_template("update.html", form=form, id = id)
@@ -79,7 +79,7 @@ def updateform():
 from bson import json_util
 @app.route('/update/<id>', methods=["POST"])
 def update(id):
-	user = mongo.db.users
+	user = mongo.green_wall.users
 	form = AddForm()
 	if form.validate_on_submit():
 		result = user.update({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'language': form.language.data}})
@@ -91,7 +91,7 @@ def update(id):
 
 @app.route('/delete/<id>')
 def delete(id):
-	devices = mongo.db.devices
+	devices = mongo.green_wall.devices
 	delete_record = devices.delete_one({'_id':ObjectId(id)})
 	return redirect(url_for('index'))
 
