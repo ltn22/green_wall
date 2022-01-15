@@ -29,7 +29,7 @@ class AddForm(FlaskForm):
 #===============================
 #List all the users at home page
 #===============================
-@app.route('/home')
+@app.route('/')
 def index():
 	device_list = mongo.green_wall.devices.find()
 	return render_template("result.html",device_list=device_list)
