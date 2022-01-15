@@ -23,7 +23,7 @@ destination = (SERVER, PORT)
 PORT2 = 5684
 destination2 = (SERVER, PORT2)
 
-ipaddr='10.51.0.242'
+ipaddr='10.51.0.245'
 
 import CoAP
 import socket
