@@ -195,9 +195,9 @@ while True:
             print ("WiFi disconnected")
             wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
             #wlan.ifconfig(config=('10.51.0.241', '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-            wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
+            #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
             #wlan.connect('lala', auth=(network.WLAN.WPA2, '12341234'))
-            #wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+            wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
             time.sleep(1)
             pycom.rgbled(0x7f0000) # red
             time.sleep(1)
