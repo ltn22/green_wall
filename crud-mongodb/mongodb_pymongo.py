@@ -11,13 +11,11 @@ app= Flask(__name__)
 
 
 #To connect using a driver via the standard MongoDB URI
-#mongo = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
+mongo = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
 
-app.config["MONGO_DBNAME"] = 'green_wall'
-app.config["MONGO_URI"] = 'mongodb://gwen:thesard_errant@127.0.0.1'
-app.config['SECRET_KEY'] = os.urandom(24)
-
-mongo = PyMongo(app)
+# app.config["MONGO_DBNAME"] = 'green_wall'
+# app.config["MONGO_URI"] = 'mongodb://gwen:thesard_errant@127.0.0.1'
+# app.config['SECRET_KEY'] = os.urandom(24)
 
 #mongo = PyMongo(app)
 
@@ -33,7 +31,7 @@ class AddForm(FlaskForm):
 #===============================
 @app.route('/home')
 def index():
-	device_list = mongo.db.devices.find()
+	device_list = mongo.green_wall.devices.find()
 	return render_template("result.html",device_list=device_list)
 
 #===============================
@@ -61,7 +59,7 @@ def add():
 		name_field = form.name.data
 		unique_id_field = form.unique_id.data
 		data = ({'name':name_field, 'unique_id': unique_id_field})
-		devices = mongo.db.devices
+		devices = mongo.green_wall.devices
 		devices.insert(data)
 		return JSONEncoder().encode(data)
 	return render_template("add.html", form = form)
@@ -73,7 +71,7 @@ def add():
 @app.route('/updateform')
 def updateform():
 	id = request.args.get('id')
-	devices = mongo.db.devices
+	devices = mongo.green_wall.devices
 	result_id = devices.find_one({'_id':ObjectId(id)})
 	form = AddForm(name=result_id['name'],unique_id=result_id['unique_id'])
 	return render_template("update.html", form=form, id = id)
@@ -84,7 +82,7 @@ def updateform():
 from bson import json_util
 @app.route('/update/<id>', methods=["POST"])
 def update(id):
-	devices = mongo.db.devices
+	devices = mongo.green_wall.devices
 	form = AddForm()
 	if form.validate_on_submit():
 		result = devices.update({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'unique_id': form.unique_id.data}})
@@ -96,7 +94,7 @@ def update(id):
 
 @app.route('/delete/<id>')
 def delete(id):
-	devices = mongo.db.devices
+	devices = mongo.green_wall.devices
 	delete_record = devices.delete_one({'_id':ObjectId(id)})
 	return redirect(url_for('index'))
 
