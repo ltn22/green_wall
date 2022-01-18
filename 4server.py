@@ -125,7 +125,10 @@ class humidity_sensor(resource.PathCapable):
         else:
             print ("Unknown format")
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
-        return aiocoap.Message(code=aiocoap.CHANGED)
+
+        #sending back some value to the pycom
+        return_value = 5    
+        return aiocoap.Message(code=aiocoap.CHANGED, payload = return_value)
 
 
     async def needs_blockwise_assembly(self, request):

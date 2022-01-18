@@ -187,7 +187,8 @@ while True:
             m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print (m)
             send_coap_message (s, destination, "moisture", m)
-            send_coap_message (s, destination2, "humidity", m, mac_address)
+            return_value = send_coap_message (s, destination2, "humidity", m, mac_address)
+            print("CCCCCC - The returned value of payload:" + return_value.payload)
             time.sleep (300) # wait for 5 minutes.
 
         while not wlan.isconnected():
