@@ -115,7 +115,7 @@ class humidity_sensor(resource.PathCapable):
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
 
         #sending back some value to the pycom
-        return_value = 5    
+        return_value = "5"    
         return aiocoap.Message(code=aiocoap.CHANGED, payload = return_value)
 
 
