@@ -186,7 +186,7 @@ while True:
             print("The mac address is: " + mac_address)
             m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print (m)
-            #send_coap_message (s, destination, "moisture", m)
+            send_coap_message (s, destination, "moisture", m)
             send_coap_message (s, destination2, "humidity", m, mac_address)
             time.sleep (5) # wait for 1 minute.
 
