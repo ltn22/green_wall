@@ -34,11 +34,6 @@ from pymongo import MongoClient
 
 client = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
 
-sensor=client.green_wall.description2.find_one ({"@type":"sensor", "name": "pikachu_16"})
-print (sensor)
-sensor_desc = sensor["_id"]
-
-
 
 bbt = beebotte.BBT(msc_config_bbt.API_KEY, msc_config_bbt.SECRET_KEY)
 
@@ -62,13 +57,6 @@ def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
         data_list.append({"resource": res_name,
                           "data" : prev_value*factor,
                           "ts": back_time*1000} )
-
-        mongo_doc = {
-            "@type" : "measure",
-            "value" : prev_value*factor,
-            "date"  : back_time*1000,
-            "sensor": sensor_desc
-            }
         
     pprint.pprint (data_list)
     
