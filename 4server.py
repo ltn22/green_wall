@@ -27,7 +27,7 @@ import aiocoap.resource as resource
 import aiocoap
 
 import cbor2 as cbor
-import config_bbt #secret keys 
+import msc_config_bbt #secret keys 
 import beebotte
 
 from pymongo import MongoClient
@@ -40,7 +40,7 @@ sensor_desc = sensor["_id"]
 
 
 
-bbt = beebotte.BBT(config_bbt.API_KEY, config_bbt.SECRET_KEY)
+bbt = beebotte.BBT(msc_config_bbt.API_KEY, msc_config_bbt.SECRET_KEY)
 
 def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
     global bbt
@@ -69,7 +69,6 @@ def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
             "date"  : back_time*1000,
             "sensor": sensor_desc
             }
-        client.green_wall.measures2.insert_one(mongo_doc)
         
     pprint.pprint (data_list)
     
@@ -123,9 +122,6 @@ class humidity_sensor(resource.PathCapable):
                 sensor_counter += 1
                 sensor_pin_counter += 1
 
-            mng_dat = {"measure": m,
-                        "date" : current_time}
-            client.green_wall.raw2.insert_one(mng_dat)
         else:
             print ("Unknown format")
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)

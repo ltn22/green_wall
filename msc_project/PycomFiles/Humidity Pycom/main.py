@@ -188,7 +188,7 @@ while True:
             print (m)
             send_coap_message (s, destination, "moisture", m)
             send_coap_message (s, destination2, "humidity", m, mac_address)
-            time.sleep (5) # wait for 1 minute.
+            time.sleep (300) # wait for 5 minutes.
 
         while not wlan.isconnected():
             pycom.heartbeat(False) # turn led to white
