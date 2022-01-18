@@ -156,6 +156,7 @@ try:
         coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
         coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
         coap.add_payload(cbor.dumps(message))
+        #coap.add_option
         coap.dump(hexa=True)
         answer = CoAP.send_ack(s, destination, coap)
 
@@ -187,9 +188,10 @@ while True:
             m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print (m)
             send_coap_message (s, destination, "moisture", m)
-            return_value = send_coap_message (s, destination2, "humidity", m, mac_address)
-            print("CCCCCC - The returned value of payload:" + return_value.payload)
-            time.sleep (300) # wait for 5 minutes.
+            #return_value = send_coap_message (s, destination2, "humidity", m, mac_address)
+            send_coap_message (s, destination2, "humidity", m, mac_address)
+            print("CCCCCC - The returned value of payload:" )
+            time.sleep (3) # wait for 5 minutes.
 
         while not wlan.isconnected():
             pycom.heartbeat(False) # turn led to white
