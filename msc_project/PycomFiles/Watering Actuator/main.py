@@ -154,8 +154,9 @@ try:
             coap.add_option(CoAP.Uri_path, unique_id)
         # /proxy/mac_address
         coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
-        coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
+        #coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
         coap.add_payload(cbor.dumps(message))
+        #coap.add_option
         coap.dump(hexa=True)
         answer = CoAP.send_ack(s, destination, coap)
 
@@ -182,13 +183,17 @@ while True:
         while wlan.isconnected():
             pycom.heartbeat(True) # turn led to heartbeat
             #send the mac address of the device as an indentifier
+            print("***********************************************")
             mac_address = binascii.hexlify(wlan.mac()[1]).decode('utf-8')
             print("The mac address is: " + mac_address)
             m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print (m)
-            #send_coap_message (s, destination, "moisture", m)
-            send_coap_message (s, destination2, "humidity", m, mac_address)
-            time.sleep (5) # wait for 1 minute.
+            send_coap_message (s, destination, "moisture", m)
+            return_value = send_coap_message (s, destination2, "humidity", m, mac_address)
+            #send_coap_message (s, destination2, "humidity", m, mac_address)
+            print("---- The returned value of payload: ----" )
+            print(return_value)
+            time.sleep (3) # wait for 5 minutes.
 
         while not wlan.isconnected():
             pycom.heartbeat(False) # turn led to white
