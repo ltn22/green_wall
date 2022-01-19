@@ -7,7 +7,7 @@ import machine
 
 try:
     # setup as a station
-    ipaddr='10.51.0.245'
+    ipaddr='10.51.0.246'
     wlan = network.WLAN(mode=network.WLAN.STA)
 
     #Starts a Yellow Flag to show it started booting
@@ -17,7 +17,7 @@ try:
     wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
     #wlan.connect('lala', auth=(network.WLAN.WPA2, '12341234'))
     wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
-    time.sleep_ms (500)
+    time.sleep_ms (3)
 
 
     while not wlan.isconnected():

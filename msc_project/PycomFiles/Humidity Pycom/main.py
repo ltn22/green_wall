@@ -182,7 +182,7 @@ while True:
         while wlan.isconnected():
             pycom.heartbeat(True) # turn led to heartbeat
             #send the mac address of the device as an indentifier
-            mac_address = binascii.hexlify(wlan.mac()[1]).decode('utf-8')
+            mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
             print("The mac address is: " + mac_address)
             m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print (m)

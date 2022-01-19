@@ -23,7 +23,7 @@ destination = (SERVER, PORT)
 PORT2 = 5684
 destination2 = (SERVER, PORT2)
 
-ipaddr='10.51.0.245'
+ipaddr='10.51.0.246'
 
 import CoAP
 import socket
@@ -184,12 +184,16 @@ while True:
             pycom.heartbeat(True) # turn led to heartbeat
             #send the mac address of the device as an indentifier
             print("***********************************************")
-            mac_address = binascii.hexlify(wlan.mac()[1]).decode('utf-8')
+            mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
             print("The mac address is: " + mac_address)
+            #print(wlan.mac())
             m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print (m)
-            send_coap_message (s, destination, "moisture", m)
-            return_value = send_coap_message (s, destination2, "humidity", m, mac_address)
+            #Gwen Service from old good days
+            #send_coap_message (s, destination, "moisture", m)
+
+            #Data Sending to the Server and waits for the return.
+            return_value = send_coap_message (s, destination2, "watering", m, mac_address)
             #send_coap_message (s, destination2, "humidity", m, mac_address)
             print("---- The returned value of payload: ----" )
             print(return_value)
