@@ -116,7 +116,7 @@ class humidity_sensor(resource.PathCapable):
 
         #sending back some value to the pycom
         return_value = "5"    
-        return aiocoap.Message(code=aiocoap.CHANGED, payload = return_value)
+        return aiocoap.Message(code=aiocoap.CHANGED)
 
 
     async def needs_blockwise_assembly(self, request):
