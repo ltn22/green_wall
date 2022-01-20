@@ -22,6 +22,7 @@ import binascii
 import pprint
 import asyncio
 import socket
+import json
 
 import aiocoap.resource as resource
 import aiocoap
@@ -67,7 +68,6 @@ class humidity_sensor(resource.PathCapable):
     async def render(self, request):
         print ("render", request.opt.uri_path)
         unique_id = request.opt.uri_path[0]
-        #measurement = request.opt.uri_path[1]
     
         print ("The unique id is: " + unique_id)
 
@@ -86,14 +86,14 @@ class humidity_sensor(resource.PathCapable):
                 newvalues = { "$set": { "last_updated_at": current_time } }
                 client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
             else:    
-                device_data = { "unique_id": unique_id, "last_updated_at": current_time}
+                device_data = { "unique_id": unique_id, "last_updated_at": current_time, "name": "NA"}
                 client.green_wall.devices.insert_one(device_data)
                 device = client.green_wall.devices.find_one({"unique_id": unique_id})
             
             current_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
             sensor_counter = 1
             sensor_pin_counter = 13
-            # store the measurements
+            # store the measurements with relation to device and sensors
             for m in measurements:
                 sensor_name = "S" + str(sensor_counter) + "P"+ str(sensor_pin_counter)
                 sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
@@ -109,19 +109,46 @@ class humidity_sensor(resource.PathCapable):
                 client.green_wall.measurements.insert_one(measurement_data)
                 sensor_counter += 1
                 sensor_pin_counter += 1
+            # store the measurements for raw data collection
+            device_data = { "device_id": device['_id']
+                        "measures": measurements,
+                        "recorded_at" :  datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()}
+            client.green_wall.devicemeasures.insert_one(device_data)    
 
         else:
             print ("Unknown format")
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
 
-        #sending back some value to the pycom
-        return_value = "5"    
-        
-        return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps(return_value))
+        return aiocoap.Message(code=aiocoap.CHANGED)
 
 
     async def needs_blockwise_assembly(self, request):
         return False
+
+class watering_info(resource.PathCapable):
+
+    async def render(self, request):
+        print ("render", request.opt.uri_path)
+        
+        ct = request.opt.content_format or \
+                aiocoap.numbers.media_types_rev['text/plain']
+        
+        #fetch the humidity levels for all the pycom sensors
+        humidity_levels = []
+        for d in client.green_wall.devices.find():
+            humidity_level = {}
+            humidity_level['device_name'] = d['name']
+            latest_measures = client.green_wall.devicemeasures.find_one({"device_id":d['_id']},{sort:{"$natural":-1}})
+            humidity_level['latest_measures'] = latest_measures
+            humidity_levels.append(humidity_level)
+
+        #send back the humidity levels to watering pycom
+    
+        return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps(humidity_levels)
+
+
+    async def needs_blockwise_assembly(self, request):
+        return False        
         
 # logging setup
 logging.basicConfig(level=logging.INFO)
@@ -146,7 +173,8 @@ def main():
     #Comment up to here
 
     root.add_resource(['humidity'], humidity_sensor())
-    
+    root.add_resource(['watering'], watering_info())
+
     #Uncomment next line to use Default CoAP port
     #asyncio.Task(aiocoap.Context.create_server_context(root))
     #Comment next line to use Default CoAP port 

@@ -121,7 +121,7 @@ try:
 
 
     sigfox_MID = 1 # when SCHC is used for Sigfox
-    def send_coap_message(sock, destination, uri_path, message, unique_id = None):
+    def send_coap_message(sock, destination, uri_path, message):
         if destination[0] == "SIGFOX": # do SCHC compression
             global sigfox_MID
 
@@ -148,14 +148,11 @@ try:
 
         # for other technologies we wend a regular CoAP message
         coap = CoAP.Message()
-        coap.new_header(type=CoAP.NON, code=CoAP.POST)
+        coap.new_header(type=CoAP.NON, code=CoAP.GET)
         coap.add_option (CoAP.Uri_path, uri_path)
-        if unique_id:
-            coap.add_option(CoAP.Uri_path, unique_id)
-        # /proxy/mac_address
         coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
         #coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
-        coap.add_payload(cbor.dumps(message))
+        #coap.add_payload(cbor.dumps(message))
         #coap.add_option
         coap.dump(hexa=True)
         answer = CoAP.send_ack(s, destination, coap)
@@ -182,21 +179,10 @@ while True:
     try:
         while wlan.isconnected():
             pycom.heartbeat(True) # turn led to heartbeat
-            #send the mac address of the device as an indentifier
-            print("***********************************************")
-            mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
-            print("The mac address is: " + mac_address)
-            #print(wlan.mac())
-            m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
-            print (m)
-            #Gwen Service from old good days
-            #send_coap_message (s, destination, "moisture", m)
-
-            #Data Sending to the Server and waits for the return.
-            return_value = send_coap_message (s, destination2, "watering", m, mac_address)
-            #send_coap_message (s, destination2, "humidity", m, mac_address)
+            #Asking CoAP server for the watering info 
+            humidity_levels = send_coap_message (s, destination2, "watering")
             print("---- The returned value of payload: ----" )
-            print(return_value)
+            print(humidity_levels)
             time.sleep (3) # wait for 5 minutes.
 
         while not wlan.isconnected():
