@@ -125,27 +125,6 @@ class humidity_sensor(resource.PathCapable):
     async def needs_blockwise_assembly(self, request):
         return False
 
-class watering_info(resource.PathCapable):
-
-    async def render(self, request):
-        print ("render", request.opt.uri_path)
-        
-        ct = request.opt.content_format or \
-                aiocoap.numbers.media_types_rev['text/plain']
-        
-        #fetch the humidity levels for all the pycom sensors
-        humidity_levels = []
-        for d in client.green_wall.devices.find():
-            humidity_level = {}
-            humidity_level['device_name'] = d['name']
-            latest_measures = client.green_wall.devicemeasures.find_one({"device_id":d['_id']},{sort:{"$natural":-1}})
-            humidity_level['latest_measures'] = latest_measures
-            humidity_levels.append(humidity_level)
-
-        #send back the humidity levels to watering pycom
-        return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps(humidity_levels)
-  
-        
 # logging setup
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("coap-server").setLevel(logging.DEBUG)
@@ -180,3 +159,27 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+class watering_info(resource.PathCapable):
+
+    async def render(self, request):
+        print ("render", request.opt.uri_path)
+        
+        ct = request.opt.content_format or \
+                aiocoap.numbers.media_types_rev['text/plain']
+        
+        #fetch the humidity levels for all the pycom sensors
+        humidity_levels = []
+        for d in client.green_wall.devices.find():
+            humidity_level = {}
+            humidity_level['device_name'] = d['name']
+            latest_measures = client.green_wall.devicemeasures.find_one({"device_id":d['_id']},{sort:{"$natural":-1}})
+            humidity_level['latest_measures'] = latest_measures
+            humidity_levels.append(humidity_level)
+
+        #send back the humidity levels to watering pycom
+        return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps(humidity_levels)
+ 
+        
+
+
