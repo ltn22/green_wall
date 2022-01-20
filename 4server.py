@@ -110,7 +110,7 @@ class humidity_sensor(resource.PathCapable):
                 sensor_counter += 1
                 sensor_pin_counter += 1
             # store the measurements for raw data collection
-            device_data = { "device_id": device['_id']
+            device_data = { "device_id": device['_id'],
                         "measures": measurements,
                         "recorded_at" :  datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()}
             client.green_wall.devicemeasures.insert_one(device_data)    
