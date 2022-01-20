@@ -143,12 +143,8 @@ class watering_info(resource.PathCapable):
             humidity_levels.append(humidity_level)
 
         #send back the humidity levels to watering pycom
-    
         return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps(humidity_levels)
-
-
-    async def needs_blockwise_assembly(self, request):
-        return False        
+  
         
 # logging setup
 logging.basicConfig(level=logging.INFO)
