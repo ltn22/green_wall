@@ -23,6 +23,7 @@ import pprint
 import asyncio
 import socket
 import json
+from coapthon import defines
 
 import aiocoap.resource as resource
 import aiocoap
@@ -152,9 +153,10 @@ class watering_info(resource.Resource):
 
         print("FFFFFF ", humidity_levels ) 
         print("KKKKKK ", cbor.dumps(humidity_levels) )    
+        json_payload = (defines.Content_types["application/json"],json.dumps({"avg_humidity": 56.56}))
 
         #send back the humidity levels to watering pycom
-        return aiocoap.Message(code=aiocoap.CHANGED, payload = json.dumps({"avg_humidity": 56.56}))
+        return aiocoap.Message(code=aiocoap.CHANGED, payload = json_payload)
 
     async def needs_blockwise_assembly(self, request):
         return False
