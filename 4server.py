@@ -23,7 +23,6 @@ import pprint
 import asyncio
 import socket
 import json
-from coapthon import defines
 
 import aiocoap.resource as resource
 import aiocoap
@@ -31,6 +30,7 @@ import aiocoap
 import cbor2 as cbor
 import msc_config_bbt #secret keys 
 import beebotte
+
 
 from pymongo import MongoClient
 
@@ -154,8 +154,11 @@ class watering_info(resource.Resource):
         print("FFFFFF ", humidity_levels ) 
         dump_data = {'avg_humdity': 56.78, 'device_name': 'pycom141'}
         json_data = json.dumps(dump_data)
+        cbor_data = cbor.dumps(json_data)
         print("JJJJJJ", json_data)
-        print("CCCCCC ", cbor.dumps(json_data))    
+        print("CCCCCC ", cbor_data)
+        print("HHHHH", cbor_data.hex())  
+        print("GGGGG", binascii.hexlify(cbor_data))  
 
         
         #send back the humidity levels to watering pycom
