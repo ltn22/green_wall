@@ -95,19 +95,6 @@ try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         MTU = 200 # maximum packet size, could be higher
 
-    # -----------------  SENSORS -----------------------
-    from machine import ADC
-    adc=ADC()
-
-    apin20 = adc.channel(pin="P20",attn=ADC.ATTN_11DB)
-    apin19 = adc.channel(pin="P19",attn=ADC.ATTN_11DB)
-    apin18 = adc.channel(pin="P18",attn=ADC.ATTN_11DB)
-    apin17 = adc.channel(pin="P17",attn=ADC.ATTN_11DB)
-    apin16 = adc.channel(pin="P16",attn=ADC.ATTN_11DB)
-    apin15 = adc.channel(pin="P15",attn=ADC.ATTN_11DB)
-    apin14 = adc.channel(pin="P14",attn=ADC.ATTN_11DB)
-    apin13 = adc.channel(pin="P13",attn=ADC.ATTN_11DB)
-
 
     # ------------- SENDING DATA ------------------------
 
@@ -178,12 +165,41 @@ except OSError as err:
 while True:
     try:
         while wlan.isconnected():
-            pycom.heartbeat(True) # turn led to heartbeat
-            #Asking CoAP server for the watering info 
-            humidity_levels = send_coap_message (s, destination2, "watering")
+            print("*********************************")
+            print("Requesting Watering Time")
+            pycom.rgbled(0x007f00) # Blinks Green
+            m=[1,1] #Parse value of message to send
+            humidity_levels = send_coap_message (s, destination2, "watering",m)
             print("---- The returned value of payload: ----" )
             print(humidity_levels)
-            time.sleep (3) # wait for 5 minutes.
+            time.sleep_ms(500)
+            pycom.rgbled(0x000000) #Turn Led off
+            time.sleep(1)
+
+            if humidity_levels == None:
+                print ("No response, watering with default value")
+                print("----  Watering Green Wall ----")
+                pycom.rgbled(0x00007f) # Blue Continuous
+                time.sleep(3)
+                pycom.rgbled(0x000000) # Turn LED off
+                print("----  Watering Finished ----")
+
+            else:
+                watering_time=cbor.loads(humidity_levels)
+                print ("The watering value obtained is: " + watering_time)
+                print("----  Watering Green Wall ----")
+                pycom.rgbled(0x00007f) # Blue Continuous
+                time.sleep(int(watering_time))
+                pycom.rgbled(0x000000) # Turn LED off
+                print("----  Watering Finished ----")
+
+            pycom.heartbeat(True) # turn led to heartbeat
+            time.sleep (30) # wait for 5 minutes.
+            #Asking CoAP server for the watering info
+            pycom.heartbeat(False) #Turn off heartbeat
+
+
+
 
         while not wlan.isconnected():
             pycom.heartbeat(False) # turn led to white
@@ -191,8 +207,8 @@ while True:
             wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
             #wlan.ifconfig(config=('10.51.0.241', '255.255.255.0', '10.51.0.1', '192.108.119.134'))
             #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
-            #wlan.connect('lala', auth=(network.WLAN.WPA2, '12341234'))
-            wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+            wlan.connect('lala', auth=(network.WLAN.WPA2, '12341234'))
+            #wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
             time.sleep(1)
             pycom.rgbled(0x7f0000) # red
             time.sleep(1)

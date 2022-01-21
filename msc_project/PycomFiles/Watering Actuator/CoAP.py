@@ -261,6 +261,7 @@ def send_ack(s, dest, coap):
 
     while True:
         s.sendto (coap.to_byte(), dest)
+        s.settimeout(10)
         ##This block of code allows the acknowledgements to the Lopy.
         if coap.get_type() == NON:
             try:
