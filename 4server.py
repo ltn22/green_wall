@@ -152,11 +152,12 @@ class watering_info(resource.Resource):
             humidity_levels.append(humidity_level)
 
         print("FFFFFF ", humidity_levels ) 
-        print("KKKKKK ", cbor.dumps(humidity_levels) )    
+        dump_data = {'avg_humdity': 56.78, 'device_name': 'pycom141'}
+        print("KKKKKK ", cbor.dumps(json.dumps(dump_data)))    
 
-
+        
         #send back the humidity levels to watering pycom
-        return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps({'avg_humdity': 56.78, 'device_name': 'pycom141'}))
+        return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps(json.dumps(dump_data)))
 
     async def needs_blockwise_assembly(self, request):
         return False
