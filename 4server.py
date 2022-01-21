@@ -130,7 +130,7 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger("coap-server").setLevel(logging.DEBUG)
 
 
-class watering_info(resource.PathCapable):
+class watering_info(resource.Resource):
 
     async def render_post(self, request): 
         print("WWWWWWWWWWWW")
