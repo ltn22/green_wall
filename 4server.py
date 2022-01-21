@@ -132,7 +132,7 @@ logging.getLogger("coap-server").setLevel(logging.DEBUG)
 
 class watering_info(resource.PathCapable):
 
-    async def render(self, request): 
+    async def render_post(self, request): 
         print("WWWWWWWWWWWW")
         print ("render", request.opt.uri_path)
         ic = 0
