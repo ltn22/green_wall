@@ -149,6 +149,9 @@ class watering_info(resource.PathCapable):
             humidity_level['avg_humidity'] = avg_humidity
             humidity_levels.append(humidity_level)
 
+        print("FFFFFF ", humidity_levels ) 
+        print("KKKKKK ", cbor.dumps(humidity_levels) )    
+
         #send back the humidity levels to watering pycom
         return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps(humidity_levels))
 
