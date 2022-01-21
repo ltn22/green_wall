@@ -143,11 +143,12 @@ class watering_info(resource.Resource):
             humidity_level = {}
             humidity_level['device_name'] = d['name']
             latest_measures = client.green_wall.devicemeasures.find({"device_id":d['_id']}).sort("natural",-1).limit(1)
-            for ms in latest_measures:
-                ic += 1
-                totalh += ms
-            avg_humidity = totalh / ic    
-            humidity_level['avg_humidity'] = avg_humidity
+            humidity_level['latest_measures'] = latest_measures['measures']
+            # for ms in latest_measures:
+            #     ic += 1
+            #     totalh += ms
+            # avg_humidity = totalh / ic    
+            # humidity_level['avg_humidity'] = avg_humidity
             humidity_levels.append(humidity_level)
 
         print("FFFFFF ", humidity_levels ) 
