@@ -153,10 +153,10 @@ class watering_info(resource.Resource):
 
         print("FFFFFF ", humidity_levels ) 
         print("KKKKKK ", cbor.dumps(humidity_levels) )    
-        json_payload = (defines.Content_types["application/json"],cbor.dumps(humidity_levels)
+
 
         #send back the humidity levels to watering pycom
-        return aiocoap.Message(code=aiocoap.CHANGED, payload = json_payload)
+        return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps(humidity_levels))
 
     async def needs_blockwise_assembly(self, request):
         return False
