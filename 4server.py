@@ -157,12 +157,12 @@ class watering_info(resource.Resource):
         cbor_data = cbor.dumps(dump_data)
         #print("JJJJJJ", json_data)
         print("CCCCCC ", cbor_data)
-        print("HHHHH", cbor_data.hex())  
+        #print("HHHHH", cbor_data.hex())  
         print("GGGGG", binascii.hexlify(cbor_data))  
 
         
         #send back the humidity levels to watering pycom
-        return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor_data.hex())
+        return aiocoap.Message(code=aiocoap.CHANGED, payload = binascii.hexlify(cbor_data))
 
     async def needs_blockwise_assembly(self, request):
         return False
