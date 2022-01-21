@@ -134,13 +134,19 @@ class watering_info(resource.PathCapable):
 
     async def render(self, request): 
         print ("render", request.opt.uri_path)
+        ic = 0
+        totalh = 0
         #fetch the humidity levels for all the pycom sensors
         humidity_levels = []
         for d in client.green_wall.devices.find():
             humidity_level = {}
             humidity_level['device_name'] = d['name']
             latest_measures = client.green_wall.devicemeasures.find_one({"device_id":d['_id']},{sort:{"$natural":-1}})
-            humidity_level['latest_measures'] = latest_measures
+            for ms in latest_measures:
+                ic += 1
+                totalh += ms
+            avg_humidity = totalh / ic    
+            humidity_level['avg_humidity'] = avg_humidity
             humidity_levels.append(humidity_level)
 
         #send back the humidity levels to watering pycom
