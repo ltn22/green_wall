@@ -156,7 +156,7 @@ class watering_info(resource.Resource):
 
 
         #send back the humidity levels to watering pycom
-        return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps(humidity_levels))
+        return aiocoap.Message(code=aiocoap.CHANGED, payload = cbor.dumps({'avg_humdity': 56.78, 'device_name': 'pycom141'}))
 
     async def needs_blockwise_assembly(self, request):
         return False
