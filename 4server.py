@@ -135,6 +135,17 @@ class watering_info(resource.Resource):
 
     async def render_post(self, request): 
         print ("render", request.opt.uri_path)
+
+        ct = request.opt.content_format or \
+                aiocoap.numbers.media_types_rev['text/plain']
+     
+        if ct == aiocoap.numbers.media_types_rev['text/plain']:
+            print ("text:", request.payload)
+        elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
+            print ("cbor:", cbor.loads(request.payload))
+            #the device_name sent by actuator controller can be used to calculate average humidity
+            device_name = cbor.loads(request.payload)        
+
         ic = 0
         totalh = 0
         #fetch the humidity levels for all the pycom sensors
@@ -142,7 +153,7 @@ class watering_info(resource.Resource):
         for d in client.green_wall.devices.find():
             humidity_level = {}
             humidity_level['device_name'] = d['name']
-            latest_measures = client.green_wall.devicemeasures.find_one({"device_id":d['_id']})
+            latest_measures = client.green_wall.devicemeasures.find_one({"device_id":d['_id']},{"sort": {"$natural": -1}})
             for ms in latest_measures['measures']:
                 ic += 1
                 totalh += ms
@@ -150,11 +161,9 @@ class watering_info(resource.Resource):
             humidity_level['avg_humidity'] = avg_humidity
             humidity_levels.append(humidity_level)
 
-        print("FFFFFF ", humidity_levels ) 
-        #dump_data = {'avg_humdity': 56.78, 'device_name': 'pycom141'}
-        cbor_data = cbor.dumps(humidity_levels)
-        print("CCCCCC ", cbor_data) 
-        print("GGGGG", binascii.hexlify(cbor_data))      
+        print("The Humidity Levels of Pycoms on the wall are: ", humidity_levels ) 
+        #Compress this data using CBOR before sending it bback to watering pycom controller
+        cbor_data = cbor.dumps(humidity_levels)    
         #send back the humidity levels to watering pycom
         return aiocoap.Message(code=aiocoap.CHANGED, payload = binascii.hexlify(cbor_data))
 
