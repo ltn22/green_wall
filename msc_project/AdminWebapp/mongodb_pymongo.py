@@ -37,7 +37,7 @@ def home():
 @app.route('/devices')
 def devices():
 	device_list = mongo.green_wall.devices.find()
-	return render_template("devices_home.html",device_list=device_list)
+	return render_template("devices_result.html",device_list=device_list)
 
 
 @app.route('/sensors')
