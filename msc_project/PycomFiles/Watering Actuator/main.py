@@ -168,9 +168,10 @@ while True:
             print("*********************************")
             print("Requesting Watering Data")
             pycom.rgbled(0x007f00) # Blinks Green
-            m="ALL" #you can send the name of the device here, if you only want data for specific device
-            request_payload = send_coap_message (s, destination2, "watering",m)
-            print("---- The returned value of payload: ----" )
+            #you can send the name of the device here, specify ALL for getting data of all devices
+            device_name="pycom141"
+            request_payload = send_coap_message (s, destination2, "watering",device_name)
+            print("---- The returned value of watering info payload: ----" )
             print(request_payload)
             time.sleep_ms(500)
             pycom.rgbled(0x000000) #Turn Led off
@@ -190,7 +191,6 @@ while True:
                 new_rp = binascii.unhexlify(rp)
                 humidity_levels= cbord.loads(new_rp)
                 print(humidity_levels)
-                #print ("The watering value obtained is: " + watering_time)
                 print("----  Watering Green Wall ----")
                 pycom.rgbled(0x00007f) # Blue Continuous
                 #time.sleep(int(watering_time))
