@@ -39,6 +39,12 @@ def devices():
 	device_list = mongo.green_wall.devices.find()
 	return render_template("devices_home.html",device_list=device_list)
 
+
+@app.route('/sensors')
+def devices():
+	
+	return "<h1> Sensors Page </h1>"
+
 #===============================
 #Helper function to hande Bson
 #===============================
