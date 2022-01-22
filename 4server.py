@@ -144,24 +144,28 @@ class watering_info(resource.Resource):
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
             print ("cbor:", cbor.loads(request.payload))
             #the device_name sent by actuator controller can be used to calculate average humidity
-            device_name = cbor.loads(request.payload)        
+            device_name = cbor.loads(request.payload)    
 
         ic = 0
         totalh = 0
         #fetch the humidity levels for all the pycom sensors
         humidity_levels = []
-        for d in client.green_wall.devices.find():
-            humidity_level = {}
-            humidity_level['device_name'] = d['name']
-            latest_measures = list(client.green_wall.devicemeasures.find({"device_id":d['_id']}).sort([('recorded_at', -1)]).limit(1))[0]
-            print("KKKKK", latest_measures)
-            for ms in latest_measures['measures']:
-                ic += 1
-                totalh += ms
-            avg_humidity = totalh / ic    
-            humidity_level['avg_humidity'] = avg_humidity
-            humidity_levels.append(humidity_level)
+        if device_name == "ALL":
+            devices = client.green_wall.devices.find()
+        else:
+            devices = client.green_wall.devices.find({"name":device_name})
 
+        for d in devices:
+                humidity_level = {}
+                humidity_level['device_name'] = d['name']
+                latest_measures = list(client.green_wall.devicemeasures.find({"device_id":d['_id']}).sort([('recorded_at', -1)]).limit(1))[0]
+                for ms in latest_measures['measures']:
+                    ic += 1
+                    totalh += ms
+                avg_humidity = totalh / ic    
+                humidity_level['avg_humidity'] = avg_humidity
+                humidity_levels.append(humidity_level)
+                
         print("The Humidity Levels of Pycoms on the wall are: ", humidity_levels ) 
         #Compress this data using CBOR before sending it bback to watering pycom controller
         cbor_data = cbor.dumps(humidity_levels)    

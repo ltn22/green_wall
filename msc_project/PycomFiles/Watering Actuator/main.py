@@ -34,12 +34,13 @@ import network
 import pycom
 import os
 import machine
-
+import json
 
 upython = (sys.implementation.name == "micropython")
-print (upython, sys.implementation.name)
+print (sys.implementation.name)
 if upython:
     import kpn_senml.cbor_encoder as cbor #pycom
+    import kpn_senml.cbor_decoder as cbord
     import pycom
     import gc
     import struct
@@ -135,12 +136,11 @@ try:
 
         # for other technologies we wend a regular CoAP message
         coap = CoAP.Message()
-        coap.new_header(type=CoAP.NON, code=CoAP.GET)
+        coap.new_header(type=CoAP.NON, code=CoAP.POST)
         coap.add_option (CoAP.Uri_path, uri_path)
         coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
         #coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
-        #coap.add_payload(cbor.dumps(message))
-        #coap.add_option
+        coap.add_payload(cbor.dumps(message))
         coap.dump(hexa=True)
         answer = CoAP.send_ack(s, destination, coap)
 
@@ -166,17 +166,17 @@ while True:
     try:
         while wlan.isconnected():
             print("*********************************")
-            print("Requesting Watering Time")
+            print("Requesting Watering Data")
             pycom.rgbled(0x007f00) # Blinks Green
-            m=[1,1] #Parse value of message to send
-            humidity_levels = send_coap_message (s, destination2, "watering",m)
+            m="ALL" #you can send the name of the device here, if you only want data for specific device
+            request_payload = send_coap_message (s, destination2, "watering",m)
             print("---- The returned value of payload: ----" )
-            print(humidity_levels)
+            print(request_payload)
             time.sleep_ms(500)
             pycom.rgbled(0x000000) #Turn Led off
             time.sleep(1)
 
-            if humidity_levels == None:
+            if request_payload == None:
                 print ("No response, watering with default value")
                 print("----  Watering Green Wall ----")
                 pycom.rgbled(0x00007f) # Blue Continuous
@@ -185,11 +185,15 @@ while True:
                 print("----  Watering Finished ----")
 
             else:
-                watering_time=cbor.loads(humidity_levels)
-                print ("The watering value obtained is: " + watering_time)
+                rp = bytearray(request_payload)
+                rp = rp[5:]
+                new_rp = binascii.unhexlify(rp)
+                humidity_levels= cbord.loads(new_rp)
+                print(humidity_levels)
+                #print ("The watering value obtained is: " + watering_time)
                 print("----  Watering Green Wall ----")
                 pycom.rgbled(0x00007f) # Blue Continuous
-                time.sleep(int(watering_time))
+                #time.sleep(int(watering_time))
                 pycom.rgbled(0x000000) # Turn LED off
                 print("----  Watering Finished ----")
 
@@ -197,9 +201,6 @@ while True:
             time.sleep (30) # wait for 5 minutes.
             #Asking CoAP server for the watering info
             pycom.heartbeat(False) #Turn off heartbeat
-
-
-
 
         while not wlan.isconnected():
             pycom.heartbeat(False) # turn led to white
