@@ -7,7 +7,8 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Unique Id</th>
+                    <th>Network Identifier</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody id="body">
@@ -20,6 +21,9 @@
                     </td>
 					<td class="show-delete-btn hidden"><a id="delete-ajax" href="{{url_for('delete',id=i['_id'])}}">
 						<button type="button" class="btn btn-danger">Delete</button></a>
+					</td>
+                    <td class="show-btn">
+						<datetime class="da">{{ datetime.datetime.now()</datetime>
 					</td>
                 </tr>
                 {% endfor %}
