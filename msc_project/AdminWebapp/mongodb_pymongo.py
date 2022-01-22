@@ -39,7 +39,7 @@ def home():
 def devices():
 	device_list = mongo.green_wall.devices.find()
 	for d in device_list:
-		if parser.parse(d['last_updated_at']) < datetime.datetime.now() - datetime.timedelta(seconds=300):
+		if parser.parse(d['last_updated_at']) < datetime.now() - datetime.timedelta(seconds=300):
 			d['status'] = 'Inactive'
 		else:
 			d['status'] = 'Active'	
