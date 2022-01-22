@@ -25,9 +25,17 @@
             <section>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
                     <div class="btn-group" role="group">
-                        <a id="list-btn" href="{{url_for('home')}}"><button type="button" class="btn btn-default">Home</button></a>
+                        <a id="list-btn" href="{{url_for('index')}}"><button type="button" class="btn btn-default">Read</button></a>
                     </div>
-                    
+                    <div class="btn-group" role="group">
+                        <a id="add-btn" href="{{url_for('add')}}"><button type="button" class="btn btn-default">Create</button></a>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <a id="update-btn" href="{{url_for('index')}}"><button type="button" class="btn btn-default">Update</button></a>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <a id="delete-btn" href="{{url_for('index')}}"><button type="button" class="btn btn-default">Delete</button></a>
+                    </div>
                 </div>
             </section>
             
