@@ -96,8 +96,7 @@ def update(id):
 	form = AddForm()
 	if form.validate_on_submit():
 		result = devices.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'unique_id': form.unique_id.data}})
-	device_list = mongo.green_wall.devices.find()
-	return render_template("devices_result.html",device_list=device_list)
+	return redirect(url_for('devices'))
 
 #===================================
 #deleting Document in the collection
@@ -107,7 +106,7 @@ def update(id):
 def delete(id):
 	devices = mongo.green_wall.devices
 	delete_record = devices.delete_one({'_id':ObjectId(id)})
-	return redirect(url_for('index'))
+	return redirect(url_for('devices'))
 
 
 
