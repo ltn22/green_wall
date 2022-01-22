@@ -41,8 +41,7 @@ def devices():
 
 
 @app.route('/sensors')
-def devices():
-	
+def sensors():	
 	return "<h1> Sensors Page </h1>"
 
 #===============================
