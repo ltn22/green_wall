@@ -154,6 +154,7 @@ class watering_info(resource.Resource):
             humidity_level = {}
             humidity_level['device_name'] = d['name']
             latest_measures = client.green_wall.devicemeasures.find_one({"device_id":d['_id']},{"sort": {"natural": -1}})
+            print ("KKKKKKK", latest_measures)
             for ms in latest_measures['measures']:
                 ic += 1
                 totalh += ms
