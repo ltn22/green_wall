@@ -96,7 +96,8 @@ def update(id):
 	form = AddForm()
 	if form.validate_on_submit():
 		result = devices.update({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'unique_id': form.unique_id.data}})
-	return render_template("devices_result.html")
+	device_list = mongo.green_wall.devices.find()
+	return render_template("devices_result.html",device_list=device_list)
 
 #===================================
 #deleting Document in the collection
