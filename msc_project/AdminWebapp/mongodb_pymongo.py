@@ -96,7 +96,7 @@ def update(id):
 	form = AddForm()
 	if form.validate_on_submit():
 		result = devices.update({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'unique_id': form.unique_id.data}})
-	return render_template("update.html",id=id,form=form)
+	return render_template("devices_result.html")
 
 #===================================
 #deleting Document in the collection
