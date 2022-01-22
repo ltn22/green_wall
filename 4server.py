@@ -134,7 +134,6 @@ logging.getLogger("coap-server").setLevel(logging.DEBUG)
 class watering_info(resource.Resource):
 
     async def render_post(self, request): 
-        print("WWWWWWWWWWWW")
         print ("render", request.opt.uri_path)
         ic = 0
         totalh = 0
@@ -152,13 +151,10 @@ class watering_info(resource.Resource):
             humidity_levels.append(humidity_level)
 
         print("FFFFFF ", humidity_levels ) 
-        dump_data = {'avg_humdity': 56.78, 'device_name': 'pycom141'}
-        cbor_data = cbor.dumps(dump_data)
-        print("CCCCCC ", cbor_data)
-        #print("HHHHH", cbor_data.hex())  
-        print("GGGGG", binascii.hexlify(cbor_data))  
-
-        
+        #dump_data = {'avg_humdity': 56.78, 'device_name': 'pycom141'}
+        cbor_data = cbor.dumps(humidity_levels)
+        print("CCCCCC ", cbor_data) 
+        print("GGGGG", binascii.hexlify(cbor_data))      
         #send back the humidity levels to watering pycom
         return aiocoap.Message(code=aiocoap.CHANGED, payload = binascii.hexlify(cbor_data))
 
