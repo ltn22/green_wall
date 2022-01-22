@@ -153,9 +153,7 @@ class watering_info(resource.Resource):
 
         print("FFFFFF ", humidity_levels ) 
         dump_data = {'avg_humdity': 56.78, 'device_name': 'pycom141'}
-        #json_data = json.dumps(dump_data)
         cbor_data = cbor.dumps(dump_data)
-        #print("JJJJJJ", json_data)
         print("CCCCCC ", cbor_data)
         #print("HHHHH", cbor_data.hex())  
         print("GGGGG", binascii.hexlify(cbor_data))  
