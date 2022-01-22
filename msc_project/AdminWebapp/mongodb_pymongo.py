@@ -6,6 +6,7 @@ from flask_pymongo import PyMongo
 import os
 from pymongo import MongoClient
 from datetime import datetime
+from dateutil import parser
 
 
 app= Flask(__name__)
@@ -38,7 +39,7 @@ def home():
 def devices():
 	device_list = mongo.green_wall.devices.find()
 	for d in device_list:
-		if datetime.strptime(d['last_updated_at'],"%Y-%m-%d %H:%M:%S") < datetime.datetime.now() - datetime.timedelta(seconds=300):
+		if parser.parse(d['last_updated_at']) < datetime.datetime.now() - datetime.timedelta(seconds=300):
 			d['status'] = 'Inactive'
 		else:
 			d['status'] = 'Active'	
