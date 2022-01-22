@@ -30,9 +30,14 @@ class AddForm(FlaskForm):
 #List all the users at home page
 #===============================
 @app.route('/')
-def index():
+def home():
+	return render_template("home.html")
+
+
+@app.route('/devices')
+def devices():
 	device_list = mongo.green_wall.devices.find()
-	return render_template("result.html",device_list=device_list)
+	return render_template("devices_home.html",device_list=device_list)
 
 #===============================
 #Helper function to hande Bson
