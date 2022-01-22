@@ -34,12 +34,15 @@ class AddForm(FlaskForm):
 def home():
 	return render_template("home.html")
 
-
 @app.route('/devices')
 def devices():
 	device_list = mongo.green_wall.devices.find()
+	for d in device_list:
+		if d['last_updated_at'] < datetime.datetime.now()-datetime.timedelta(seconds=300):
+			d['status'] = 'Inactive'
+		else:
+			d['status'] = 'Active'	
 	return render_template("devices_result.html",device_list=device_list)
-
 
 @app.route('/sensors')
 def sensors():	
