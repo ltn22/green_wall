@@ -169,7 +169,7 @@ while True:
             print("Requesting Watering Data")
             pycom.rgbled(0x007f00) # Blinks Green
             #you can send the name of the device here, specify ALL for getting data of all devices
-            device_name="pycom141"
+            device_name="ALL"
             request_payload = send_coap_message (s, destination2, "watering",device_name)
             print("---- The returned value of watering info payload: ----" )
             print(request_payload)
