@@ -30,6 +30,9 @@
                     <td class="show-btn hidden"><a id="updatef" href="{{url_for('updatesensorform',id=s['_id'])}}">
                     	<button type="submit" class="btn btn-success">Update</button></a>
                     </td>  
+                    <td class="show-delete-btn hidden"><a id="deletes" href="{{url_for('deletesensor',id=s['_id'])}}">
+						<button type="button" class="btn btn-danger">Delete</button></a>
+					</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -145,8 +145,7 @@ def updatesensorform():
 from bson import json_util
 @app.route('/updatesensor/<id>', methods=["POST"])
 def updatesensor(id):
-	sensors = mongo.green_wall.sensors
-	device =  sensors.find_one({'_id':ObjectId(id)})
+	device =  mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
 	form = AddSensorForm()
 	if form.validate_on_submit():
 		result = sensors.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'type': form.stype.data, 'pos_X': form.position_x.data, 'pos_Y': form.position_y.data}})
@@ -158,12 +157,10 @@ def updatesensor(id):
 
 @app.route('/deletesensor/<id>')
 def deletesensor(id):
-	devices = mongo.green_wall.devices
-	#delete all the sensors associated with this device
-	mongo.green_wall.sensors.remove({"device_id":ObjectId(id)})
-	#now delete the device itself
-	delete_record = devices.delete_one({'_id':ObjectId(id)})
-	return redirect(url_for('devices'))
+	#delete the sensor
+	device =  mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
+	delete_record = mongo.green_wall.sensors.delete_one({'_id':ObjectId(id)})
+    return redirect(url_for('sensors',device_id=device['_id']))
 
 
 
