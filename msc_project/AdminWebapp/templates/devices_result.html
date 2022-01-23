@@ -22,7 +22,7 @@
 						    <p class="text-success">{{ i["status"] }}</p> 
                         {% else %}
                             <p class="text-danger">{{ i["status"] }}</p>
-                        {% endif }    
+                        {% endif %}    
 					</td>
                     <td class="show-btn hidden"><a id="update-form-ajax" href="{{url_for('updateform',id=i['_id'])}}">
                     	<button type="submit" class="btn btn-success">update</button></a>
