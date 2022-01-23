@@ -177,7 +177,7 @@ while True:
             request_payload = [mac_address, device_name]
             response_payload = send_coap_message (s, destination2, "watering",request_payload)
             print("---- The returned value of watering info payload: ----" )
-            print(request_payload)
+            print(response_payload)
             time.sleep_ms(500)
             pycom.rgbled(0x000000) #Turn Led off
             time.sleep(1)
@@ -189,7 +189,7 @@ while True:
                 pycom.rgbled(0x000000) # Turn LED off
             else:
                 relative_humidity_threshold = 50
-                rp = bytearray(request_payload)
+                rp = bytearray(response_payload)
                 rp = rp[5:]
                 new_rp = binascii.unhexlify(rp)
                 humidity_levels= cbord.loads(new_rp)
