@@ -5,7 +5,8 @@ from wtforms.validators import InputRequired
 from flask_pymongo import PyMongo
 import os
 from pymongo import MongoClient
-from datetime import datetime, timedelta, timezone
+import datetime
+from datetime import datetime, timedelta
 from dateutil import parser
 
 
