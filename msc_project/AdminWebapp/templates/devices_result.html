@@ -20,9 +20,9 @@
                     <td>{{ i["unique_id"] }}</td>
                     <td class="show-btn">
                         {% if i["status"] == "Active" %}
-						    <p class="text-success">{{ i["status"] }}</p> 
+						    <p class="text-success font-weight-bold" >{{ i["status"] }}</p> 
                         {% else %}
-                            <p class="text-danger">{{ i["status"] }}</p>
+                            <p class="text-danger font-weight-bold">{{ i["status"] }}</p>
                         {% endif %}    
 					</td>
                     <td class="show-btn hidden"><a id="update-form-ajax" href="{{url_for('updateform',id=i['_id'])}}">
