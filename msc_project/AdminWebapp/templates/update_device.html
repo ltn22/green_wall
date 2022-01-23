@@ -7,7 +7,6 @@
     <form id="update-form" method="POST" action="{{ url_for('update',id=id)}}">
         {{ form.csrf_token }}
         <h3>Name</h3>{{form.name}}
-        
         <input type="submit" value="Submit">
     </form>
 </div>
