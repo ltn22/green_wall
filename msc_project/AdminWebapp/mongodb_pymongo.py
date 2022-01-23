@@ -45,7 +45,8 @@ def devices():
 		if device_last_updated_at < datetime.datetime.utcnow() - timedelta(seconds=300):
 			d['status'] = 'Inactive'
 		else:
-			d['status'] = 'Active'	
+			d['status'] = 'Active'
+	print("JJJJJJ", device_list)			
 	return render_template("devices_result.html",device_list=device_list)
 
 @app.route('/sensors')
