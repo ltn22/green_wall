@@ -96,7 +96,7 @@ def updateform():
 	id = request.args.get('id')
 	devices = mongo.green_wall.devices
 	result_id = devices.find_one({'_id':ObjectId(id)})
-	form = AddForm(name=result_id['name'],unique_id=result_id['unique_id'])
+	form = AddForm(name=result_id['name'])
 	return render_template("update_device.html", form=form, id = id)
 
 #===================================
@@ -108,7 +108,7 @@ def update(id):
 	devices = mongo.green_wall.devices
 	form = AddForm()
 	if form.validate_on_submit():
-		result = devices.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'unique_id': form.unique_id.data}})
+		result = devices.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data}})
 	return redirect(url_for('devices'))
 
 #===================================
