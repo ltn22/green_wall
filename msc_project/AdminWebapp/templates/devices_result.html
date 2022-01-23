@@ -31,6 +31,9 @@
 					<td class="show-delete-btn hidden"><a id="delete-ajax" href="{{url_for('delete',id=i['_id'])}}">
 						<button type="button" class="btn btn-danger">Delete</button></a>
 					</td>
+                    <div class="btn-group" role="group">
+                        <a id="list-btn" href="{{url_for('sensors', device_id = i['_id'])}}"><button type="button" class="btn btn-link">Manage Sensors</button></a>
+                    </div>
                  
                 </tr>
                 {% endfor %}
