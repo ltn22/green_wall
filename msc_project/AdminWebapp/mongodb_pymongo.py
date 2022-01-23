@@ -6,7 +6,7 @@ from flask_pymongo import PyMongo
 import os
 from pymongo import MongoClient
 import datetime
-from datetime import datetime, timedelta
+from datetime import timedelta
 from dateutil import parser
 
 
