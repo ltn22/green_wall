@@ -133,7 +133,7 @@ def delete(id):
 def updatesensorform():
 	id = request.args.get('id')
 	result_id = mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
-	form = AddForm(name=result_id['name'],type=result_id['type'],position_x=result_id['pos_X'], position_y=result_id["pos_Y"])
+	form = AddForm(name=result_id['name'],type=result_id['type'],position_x=result_id['pos_X'], position_y=result_id['pos_Y'])
 	return render_template("update_sensor.html", form=form, id = id)
 
 #===================================
