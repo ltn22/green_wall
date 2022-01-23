@@ -88,7 +88,7 @@ def add():
 	return render_template("add_device.html", form = form)
 
 #===================================
-#Updating form
+#Updating Device : GET
 #===================================
 
 @app.route('/updateform')
@@ -96,11 +96,11 @@ def updateform():
 	id = request.args.get('id')
 	devices = mongo.green_wall.devices
 	result_id = devices.find_one({'_id':ObjectId(id)})
-	form = AddForm(name=result_id['name'])
+	form = AddForm(name=result_id['name'],unique_id=result_id['unique_id'])
 	return render_template("update_device.html", form=form, id = id)
 
 #===================================
-#Updating Document in the collection
+#Updating Device in the collection
 #===================================
 from bson import json_util
 @app.route('/update/<id>', methods=["POST"])
@@ -108,11 +108,11 @@ def update(id):
 	devices = mongo.green_wall.devices
 	form = AddForm()
 	if form.validate_on_submit():
-		result = devices.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data}})
+		result = devices.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'unique_id': form.unique_id.data}})
 	return redirect(url_for('devices'))
 
 #===================================
-#deleting Document in the collection
+#deleting Device in the collection
 #===================================
 
 @app.route('/delete/<id>')
@@ -123,6 +123,44 @@ def delete(id):
 	#now delete the device itself
 	delete_record = devices.delete_one({'_id':ObjectId(id)})
 	return redirect(url_for('devices'))
+
+
+#===================================
+#Updating Sensor : GET
+#===================================
+
+@app.route('/updatesensorform')
+def updatesensorform():
+	id = request.args.get('id')
+	result_id = mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
+	form = AddForm(name=result_id['name'],type=result_id['type'],position_x=result_id['pos_X'], position_y=result_id["pos_Y"])
+	return render_template("update_sensor.html", form=form, id = id)
+
+#===================================
+#Updating Sensor in the collection
+#===================================
+from bson import json_util
+@app.route('/update/<id>', methods=["POST"])
+def updatesensor(id):
+	sensors = mongo.green_wall.sensors
+	form = AddForm()
+	if form.validate_on_submit():
+		result = sensors.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'type': form.type.data, 'pos_X': form.position_x.data, 'pos_Y': form.position_y.data}})
+	return redirect(url_for('devices'))
+
+#===================================
+#deleting Device in the collection
+#===================================
+
+@app.route('/delete/<id>')
+def delete(id):
+	devices = mongo.green_wall.devices
+	#delete all the sensors associated with this device
+	mongo.green_wall.sensors.remove({"device_id":ObjectId(id)})
+	#now delete the device itself
+	delete_record = devices.delete_one({'_id':ObjectId(id)})
+	return redirect(url_for('devices'))
+
 
 
 

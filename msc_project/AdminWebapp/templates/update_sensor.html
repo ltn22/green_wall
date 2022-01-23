@@ -1,4 +1,4 @@
-{% extends 'devices_home.html' %}
+{% extends 'sensors_home.html' %}
 
 {% block result %}
 
@@ -7,7 +7,9 @@
     <form id="update-form" method="POST" action="{{ url_for('update',id=id)}}">
         {{ form.csrf_token }}
         <h3>Name</h3>{{form.name}}
-        <h3>Unique ID</h3>{{form.unique_id}}<br>
+        <h3>Type</h3>{{form.type}}
+        <h3>Type</h3>{{form.position_x}}
+        <h3>Type</h3>{{form.position_y}}<br>
         <input type="submit" value="Submit">
     </form>
 </div>
