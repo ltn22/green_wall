@@ -40,7 +40,7 @@ def home():
 def devices():
 	device_list = mongo.green_wall.devices.find()
 	for d in device_list:
-		if parser.parse(d['last_updated_at']) < datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat() - timedelta(seconds=300):
+		if d['last_updated_at'] < datetime.datetime.utcnow() - timedelta(seconds=300):
 			d['status'] = 'Inactive'
 		else:
 			d['status'] = 'Active'	
@@ -74,7 +74,7 @@ def add():
 	if form.validate_on_submit():
 		name_field = form.name.data
 		unique_id_field = form.unique_id.data
-		data = ({'name':name_field, 'unique_id': unique_id_field})
+		data = ({'name':name_field, 'unique_id': unique_id_field, 'last_updated_at': datetime.datetime.utcnow()})
 		devices = mongo.green_wall.devices
 		devices.insert_one(data)
 		return JSONEncoder().encode(data)
