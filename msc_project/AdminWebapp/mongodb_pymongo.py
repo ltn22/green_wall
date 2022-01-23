@@ -56,16 +56,7 @@ def devices():
 			d['status'] = 'Active'			
 	return render_template("devices_result.html",device_list=device_list)
 
-@app.route('/sensors/<device_id>')
-def sensors(device_id):
-	sensor_list = list(mongo.green_wall.sensors.find({"device_id":ObjectId(device_id)}))
-	for s in sensor_list:
-		sensor_last_updated_at = datetime.datetime.strptime(s['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
-		if sensor_last_updated_at < datetime.datetime.utcnow() - timedelta(seconds=300):
-			s['status'] = 'Inactive'
-		else:
-			s['status'] = 'Active'
-	return render_template("sensors_result.html",sensor_list=sensor_list)
+
 
 #===============================
 #Helper function to hande Bson
@@ -120,6 +111,23 @@ def delete(id):
 	return redirect(url_for('devices'))
 
 
+		
+#===================================
+#List all the sensors for a device : GET
+#===================================
+
+@app.route('/sensors/<device_id>')
+def sensors(device_id):
+	sensor_list = list(mongo.green_wall.sensors.find({"device_id":ObjectId(device_id)}))
+	for s in sensor_list:
+		sensor_last_updated_at = datetime.datetime.strptime(s['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
+		if sensor_last_updated_at < datetime.datetime.utcnow() - timedelta(seconds=300):
+			s['status'] = 'Inactive'
+		else:
+			s['status'] = 'Active'
+	return render_template("sensors_result.html",sensor_list=sensor_list)
+
+
 #===================================
 #Updating Sensor : GET
 #===================================
@@ -132,16 +140,17 @@ def updatesensorform():
 	return render_template("update_sensor.html", form=form, id = id)
 
 #===================================
-#Updating Sensor in the collection
+#Updating Sensor in the Database: POST
 #===================================
 from bson import json_util
 @app.route('/updatesensor/<id>', methods=["POST"])
 def updatesensor(id):
 	sensors = mongo.green_wall.sensors
+	device =  sensors.find_one({'_id':ObjectId(id)})
 	form = AddSensorForm()
 	if form.validate_on_submit():
 		result = sensors.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'type': form.stype.data, 'pos_X': form.position_x.data, 'pos_Y': form.position_y.data}})
-	return redirect(url_for('devices'))
+	return redirect(url_for('sensors',device_id=device['_id']))
 
 #===================================
 #deleting Sensor in the collection
