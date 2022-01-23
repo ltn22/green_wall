@@ -3,7 +3,10 @@
 {% block result %}
 
 <div class="container text-center">
-    <h1>Update Operation</h3>
+    <h3>Device Name: {{ device_name }}</h3>
+    <h1>Update Sensor Details</h3>
+    </br>
+
     <form id="update-form" method="POST" action="{{ url_for('updatesensor',id=id)}}">
         {{ form.csrf_token }}
         <h3>Name</h3>{{form.name}}

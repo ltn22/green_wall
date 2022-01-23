@@ -120,7 +120,6 @@ def delete(id):
 def sensors(device_id):
     sensor_list = list(mongo.green_wall.sensors.find({"device_id":ObjectId(device_id)}))
     device_name = mongo.green_wall.devices.find_one({"_id":ObjectId(device_id)},{'name': 1})
-    print("DDDDDD", device_name['name'])
     for s in sensor_list:
         sensor_last_updated_at = datetime.datetime.strptime(s['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
         if sensor_last_updated_at < datetime.datetime.utcnow() - timedelta(seconds=300):
@@ -138,8 +137,9 @@ def sensors(device_id):
 def updatesensorform():
     id = request.args.get('id')
     result_id = mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
+    device_name = mongo.green_wall.devices.find_one({"_id":result_id['device_id']},{'name': 1})
     form = AddSensorForm(name=result_id['name'],stype=result_id['type'],position_x=result_id['pos_X'], position_y=result_id['pos_Y'])
-    return render_template("update_sensor.html", form=form, id = id)
+    return render_template("update_sensor.html", form=form, id = id, device_name = device_name)
 
 #===================================
 #Updating Sensor in the Database: POST
