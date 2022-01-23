@@ -1,0 +1,41 @@
+{% extends 'sensors_home.html' %}
+
+{% block result %}
+</br>
+</br>
+	<div class="container" id="test">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="body">
+                {% for s in sensor_list%}
+                <tr>
+                    <td>{{ s["name"] }}</td>
+                    <td>{{ s["type"] }}</td>
+                    <td class="show-btn">
+                        {% if s["status"] == "Active" %}
+						    <p class="text-success font-weight-bold" >{{ s["status"] }}</p> 
+                        {% else %}
+                            <p class="text-danger font-weight-bold">{{ s["status"] }}</p>
+                        {% endif %}    
+					</td>
+                    <!-- <td class="show-btn hidden"><a id="update-form-ajax" href="{{url_for('updatesensorform',id=s['_id'])}}">
+                    	<button type="submit" class="btn btn-success">Update</button></a>
+                    </td>
+					<td class="show-delete-btn hidden"><a id="delete-ajax" href="{{url_for('deletesensor',id=s['_id'])}}">
+						<button type="button" class="btn btn-danger">Delete</button></a>
+					</td> -->
+                 
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{%endblock%}

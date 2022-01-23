@@ -47,9 +47,16 @@ def devices():
 			d['status'] = 'Active'			
 	return render_template("devices_result.html",device_list=device_list)
 
-@app.route('/sensors')
-def sensors():	
-	return "<h1> Sensors Page </h1>"
+@app.route('/sensors/<device_id>')
+def sensors(device_id):
+	sensor_list = list(mongo.green_wall.sensors.find({"device_id":ObjectId(device_id)}))
+	for s in sensor_list:
+		s_last_updated_at = datetime.datetime.strptime(s['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
+		if device_last_updated_at < datetime.datetime.utcnow() - timedelta(seconds=300):
+			s['status'] = 'Inactive'
+		else:
+			s['status'] = 'Active'
+	return render_template("sensors_result.html",sensor_list=sensor_list)
 
 #===============================
 #Helper function to hande Bson
@@ -112,6 +119,9 @@ def update(id):
 @app.route('/delete/<id>')
 def delete(id):
 	devices = mongo.green_wall.devices
+	#delete all the sensors associated with this device
+	mongo.green_wall.sensors.delete({"device_id":ObjectId(id)})
+	#now delete the device itself
 	delete_record = devices.delete_one({'_id':ObjectId(id)})
 	return redirect(url_for('devices'))
 
