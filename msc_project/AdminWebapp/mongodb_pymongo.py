@@ -147,7 +147,7 @@ def updatesensorform():
 from bson import json_util
 @app.route('/updatesensor/<id>', methods=["POST"])
 def updatesensor(id):
-    device =  mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
+    device = mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
     form = AddSensorForm()
     if form.validate_on_submit():
         result = mongo.green_wall.sensors.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'type': form.stype.data, 'pos_X': form.position_x.data, 'pos_Y': form.position_y.data}})

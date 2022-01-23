@@ -185,7 +185,7 @@ while True:
             #send the mac address of the device as an indentifier
             mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
             print("The mac address is: " + mac_address)
-            print("The device IP adress is: "+ipaddr)
+            print("The device IP adress is: " + ipaddr)
             m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print (m)
             send_coap_message (s, destination, "moisture", m)
