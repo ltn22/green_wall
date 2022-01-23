@@ -101,7 +101,7 @@ class humidity_sensor(resource.PathCapable):
                     newvalues = { "$set": { "last_updated_at": current_time} }
                     client.green_wall.sensors.update_one({"_id": sensor['_id']}, newvalues)    
                 else:    
-                    sensor_data = { "name":sensor_name, "type":"humidity", "device_id": device['_id',"pos_X":-1, "pos_Y":-1], "last_updated_at": current_time}
+                    sensor_data = { "name":sensor_name, "type":"humidity", "device_id": device['_id'],"pos_X":-1, "pos_Y":-1], "last_updated_at": current_time}
                     client.green_wall.sensors.insert_one(sensor_data)
                     sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
                 #add the measurement for the sensor
