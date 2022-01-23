@@ -130,11 +130,10 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger("coap-server").setLevel(logging.DEBUG)
 
 
-class watering_info(resource.Resource):
+class watering_info(resource.PathCapable):
 
-    async def render_post(self, request): 
+    async def render(self, request): 
         print ("render", request.opt.uri_path)
-
         unique_id = request.opt.uri_path[0]
         print ("The unique id is: " + unique_id)
 
