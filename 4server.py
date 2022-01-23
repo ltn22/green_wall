@@ -71,7 +71,7 @@ class humidity_sensor(resource.PathCapable):
         unique_id = request.opt.uri_path[0]
     
         print ("The unique id is: " + unique_id)
-        current_time = datetime.datetime.utcnow()
+        current_time = str(datetime.datetime.utcnow())
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
 

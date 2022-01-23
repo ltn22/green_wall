@@ -74,7 +74,7 @@ def add():
 	if form.validate_on_submit():
 		name_field = form.name.data
 		unique_id_field = form.unique_id.data
-		data = ({'name':name_field, 'unique_id': unique_id_field, 'last_updated_at': datetime.datetime.utcnow()})
+		data = ({'name':name_field, 'unique_id': unique_id_field, 'last_updated_at': str(datetime.datetime.utcnow())})
 		devices = mongo.green_wall.devices
 		devices.insert_one(data)
 		return JSONEncoder().encode(data)
