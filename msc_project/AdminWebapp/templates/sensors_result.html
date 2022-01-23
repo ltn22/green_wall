@@ -27,7 +27,7 @@
                         {% endif %}    
 					</td>
                     <td>{{ s["pos_X"],s["pos_Y"] }}</td> 
-                    <td class="show-btn hidden"><a id="update-form-ajax" href="{{url_for('updatesensorform',id=i['_id'])}}">
+                    <td class="show-btn hidden"><a id="update-form-ajax" href="{{url_for('updatesensorform',id=s['_id'])}}">
                     	<button type="submit" class="btn btn-success">Update</button></a>
                     </td>  
                 </tr>
