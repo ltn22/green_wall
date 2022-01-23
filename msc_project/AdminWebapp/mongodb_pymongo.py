@@ -22,14 +22,24 @@ app.config['SECRET_KEY'] = os.urandom(24)
 #mongo = PyMongo(app)
 
 #=============================================================
-#From class from WTForms to handle adding and Updating database
+#From class from WTForms to handle adding and Updating Devices
 #=============================================================
 class AddForm(FlaskForm):
 	name = StringField('name', validators = [InputRequired()])
-	unique_id = StringField('unique_id', validators = [InputRequired()])
+	#unique_id = StringField('unique_id', validators = [InputRequired()])
+
+
+#=============================================================
+#From class from WTForms to handle adding and Updating Sensors
+#=============================================================
+class AddSensorForm(FlaskForm):
+	name = StringField('name', validators = [InputRequired()])
+	stype = StringField('type', validators = [InputRequired()])
+	position_x = StringField('pos_X', validators = [InputRequired()])
+	position_y = StringField('pos_Y', validators = [InputRequired()])
 
 #===============================
-#List all the users at home page
+#Homepage
 #===============================
 @app.route('/')
 def home():
@@ -72,7 +82,7 @@ class JSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 #===================================
-#Create Document in the collection
+#Create Device in the collection
 #===================================
 
 @app.route('/add', methods=["GET","POST"])
@@ -96,7 +106,7 @@ def updateform():
 	id = request.args.get('id')
 	devices = mongo.green_wall.devices
 	result_id = devices.find_one({'_id':ObjectId(id)})
-	form = AddForm(name=result_id['name'],unique_id=result_id['unique_id'])
+	form = AddForm(name=result_id['name'])
 	return render_template("update_device.html", form=form, id = id)
 
 #===================================
@@ -108,7 +118,7 @@ def update(id):
 	devices = mongo.green_wall.devices
 	form = AddForm()
 	if form.validate_on_submit():
-		result = devices.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'unique_id': form.unique_id.data}})
+		result = devices.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data}})
 	return redirect(url_for('devices'))
 
 #===================================
