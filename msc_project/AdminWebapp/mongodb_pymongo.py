@@ -81,21 +81,6 @@ class JSONEncoder(json.JSONEncoder):
             return str(o)
         return json.JSONEncoder.default(self, o)
 
-#===================================
-#Create Device in the collection
-#===================================
-
-@app.route('/add', methods=["GET","POST"])
-def add():
-	form = AddForm()
-	if form.validate_on_submit():
-		name_field = form.name.data
-		unique_id_field = form.unique_id.data
-		data = ({'name':name_field, 'unique_id': unique_id_field, 'last_updated_at': str(datetime.datetime.utcnow())})
-		devices = mongo.green_wall.devices
-		devices.insert_one(data)
-		return JSONEncoder().encode(data)
-	return render_template("add_device.html", form = form)
 
 #===================================
 #Updating Device : GET
@@ -143,7 +128,7 @@ def delete(id):
 def updatesensorform():
 	id = request.args.get('id')
 	result_id = mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
-	form = AddSensorForm(name=result_id['name'],type=result_id['type'],position_x=result_id['pos_X'], position_y=result_id['pos_Y'])
+	form = AddSensorForm(name=result_id['name'],stype=result_id['type'],position_x=result_id['pos_X'], position_y=result_id['pos_Y'])
 	return render_template("update_sensor.html", form=form, id = id)
 
 #===================================
