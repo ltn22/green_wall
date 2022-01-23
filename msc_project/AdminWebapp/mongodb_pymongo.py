@@ -120,7 +120,7 @@ def update(id):
 def delete(id):
 	devices = mongo.green_wall.devices
 	#delete all the sensors associated with this device
-	mongo.green_wall.sensors.delete({"device_id":ObjectId(id)})
+	mongo.green_wall.sensors.remove({"device_id":ObjectId(id)})
 	#now delete the device itself
 	delete_record = devices.delete_one({'_id':ObjectId(id)})
 	return redirect(url_for('devices'))
