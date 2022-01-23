@@ -98,7 +98,7 @@ class humidity_sensor(resource.PathCapable):
                 sensor_name = "S" + str(sensor_counter) + "P"+ str(sensor_pin_counter)
                 sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
                 if sensor:
-                    newvalues = { "$set": { "last_updated_at": current_time, "pos_X":-1, "pos_Y":-1} }
+                    newvalues = { "$set": { "last_updated_at": current_time} }
                     client.green_wall.sensors.update_one({"_id": sensor['_id']}, newvalues)    
                 else:    
                     sensor_data = { "name":sensor_name, "type":"humidity", "device_id": device['_id',"pos_X":-1, "pos_Y":-1], "last_updated_at": current_time}

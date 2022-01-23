@@ -6,7 +6,7 @@
 	<form id="add-form" method="POST" action="{{ url_for('add')}}">	
 		{{ form.csrf_token }}
 		<h3>Name</h3>{{form.name}}
-		<h3>Unique ID</h3>{{form.unique_id}}<br>
+		<h3>Unique ID</h3>{{form.unique_id(readonly=true)}}<br>
 		<input type="submit" value="Submit">
 	</form>
 </div>
