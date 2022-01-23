@@ -35,8 +35,8 @@ class AddForm(FlaskForm):
 class AddSensorForm(FlaskForm):
 	name = StringField('name', validators = [InputRequired()])
 	stype = StringField('type', validators = [InputRequired()])
-	position_x = StringField('pos_X', validators = [InputRequired()])
-	position_y = StringField('pos_Y', validators = [InputRequired()])
+	position_x = IntegerField('pos_X', validators = [InputRequired()])
+	position_y = IntegerField('pos_Y', validators = [InputRequired()])
 
 #===============================
 #Homepage
