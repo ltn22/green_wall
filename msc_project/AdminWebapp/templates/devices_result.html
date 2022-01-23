@@ -16,15 +16,16 @@
                 <tr>
                     <td>{{ i["name"] }}</td>
                     <td>{{ i["unique_id"] }}</td>
+                    <td class="show-btn">
+						{{ i["status"] }}
+					</td>
                     <td class="show-btn hidden"><a id="update-form-ajax" href="{{url_for('updateform',id=i['_id'])}}">
                     	<button type="submit" class="btn btn-success">update</button></a>
                     </td>
 					<td class="show-delete-btn hidden"><a id="delete-ajax" href="{{url_for('delete',id=i['_id'])}}">
 						<button type="button" class="btn btn-danger">Delete</button></a>
 					</td>
-                    <td class="show-btn">
-						{{ i["status"] }}
-					</td>
+                 
                 </tr>
                 {% endfor %}
             </tbody>
