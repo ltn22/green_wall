@@ -38,7 +38,7 @@ def home():
 
 @app.route('/devices')
 def devices():
-	device_list = mongo.green_wall.devices.find()
+	device_list = list(mongo.green_wall.devices.find())
 	for d in device_list:
 		device_last_updated_at = datetime.datetime.strptime(d['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
 		print ("KKKKKKK", device_last_updated_at)
