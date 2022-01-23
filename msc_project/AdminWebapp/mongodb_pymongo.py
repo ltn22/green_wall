@@ -139,7 +139,7 @@ def updatesensorform():
     result_id = mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
     device_name = mongo.green_wall.devices.find_one({"_id":result_id['device_id']},{'name': 1})
     form = AddSensorForm(name=result_id['name'],stype=result_id['type'],position_x=result_id['pos_X'], position_y=result_id['pos_Y'])
-    return render_template("update_sensor.html", form=form, id = id, device_name = device_name)
+    return render_template("update_sensor.html", form=form, id = id, device_name = device_name['name'])
 
 #===================================
 #Updating Sensor in the Database: POST
