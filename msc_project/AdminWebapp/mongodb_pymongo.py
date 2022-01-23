@@ -7,7 +7,6 @@ import os
 from pymongo import MongoClient
 import datetime
 from datetime import timedelta
-from dateutil import parser
 
 
 app= Flask(__name__)
