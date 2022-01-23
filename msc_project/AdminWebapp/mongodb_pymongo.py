@@ -119,7 +119,7 @@ def delete(id):
 @app.route('/sensors/<device_id>')
 def sensors(device_id):
     sensor_list = list(mongo.green_wall.sensors.find({"device_id":ObjectId(device_id)}))
-    device_name = mongo.green_wall.devices.find_one({"device_id":ObjectId(device_id)},{'name':1})
+    device_name = mongo.green_wall.devices.find_one({"_id":ObjectId(device_id)},{'name': 1})
     print("DDDDDD", device_name['name'])
     for s in sensor_list:
         sensor_last_updated_at = datetime.datetime.strptime(s['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
