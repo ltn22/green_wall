@@ -157,12 +157,9 @@ def updatesensor(id):
 
 @app.route('/deletesensor/<id>')
 def deletesensor(id):
-	#delete the sensor
-	device =  mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
+	device = mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
 	delete_record = mongo.green_wall.sensors.delete_one({'_id':ObjectId(id)})
-    return redirect(url_for('sensors',device_id=device['_id']))
-
-
+  	return redirect(url_for('sensors',device_id=device['_id']))
 
 
 if __name__=='__main__':
