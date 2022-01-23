@@ -134,7 +134,7 @@ class watering_info(resource.Resource):
 
     async def render_post(self, request): 
         print ("render", request.opt.uri_path)
-
+        current_time = str(datetime.datetime.utcnow())
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
      
