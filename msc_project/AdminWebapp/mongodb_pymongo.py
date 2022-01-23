@@ -140,7 +140,7 @@ def updatesensorform():
 #Updating Sensor in the collection
 #===================================
 from bson import json_util
-@app.route('/update/<id>', methods=["POST"])
+@app.route('/updatesensor/<id>', methods=["POST"])
 def updatesensor(id):
 	sensors = mongo.green_wall.sensors
 	form = AddForm()
@@ -149,11 +149,11 @@ def updatesensor(id):
 	return redirect(url_for('devices'))
 
 #===================================
-#deleting Device in the collection
+#deleting Sensor in the collection
 #===================================
 
-@app.route('/delete/<id>')
-def delete(id):
+@app.route('/deletesensor/<id>')
+def deletesensor(id):
 	devices = mongo.green_wall.devices
 	#delete all the sensors associated with this device
 	mongo.green_wall.sensors.remove({"device_id":ObjectId(id)})
