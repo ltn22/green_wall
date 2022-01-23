@@ -79,7 +79,7 @@ def add():
 		devices = mongo.green_wall.devices
 		devices.insert_one(data)
 		return JSONEncoder().encode(data)
-	return render_template("add.html", form = form)
+	return render_template("add_device.html", form = form)
 
 #===================================
 #Updating form
@@ -91,7 +91,7 @@ def updateform():
 	devices = mongo.green_wall.devices
 	result_id = devices.find_one({'_id':ObjectId(id)})
 	form = AddForm(name=result_id['name'],unique_id=result_id['unique_id'])
-	return render_template("update.html", form=form, id = id)
+	return render_template("update_device.html", form=form, id = id)
 
 #===================================
 #Updating Document in the collection
