@@ -113,7 +113,9 @@ class humidity_sensor(resource.PathCapable):
             device_data = { "device_id": device['_id'],
                         "measures": measurements,
                         "recorded_at" :  datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()}
-            client.green_wall.devicemeasures.insert_one(device_data)    
+            client.green_wall.devicemeasures.insert_one(device_data)   
+            #send data to beebotte
+            to_bbt('test', 'humidity', measurements, period=60, factor=0.01) 
 
         else:
             print ("Unknown format")
