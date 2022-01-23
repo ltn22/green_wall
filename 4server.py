@@ -139,15 +139,15 @@ class watering_info(resource.Resource):
         print ("The unique id is: " + unique_id)
 
         #if not found, add the actuator device details in the device table in MongoDB 
-            device = client.green_wall.devices.find_one({"unique_id": unique_id})
-            if device:
-                newvalues = { "$set": { "last_updated_at": current_time } }
-                client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
-            else:    
-                device_data = { "unique_id": unique_id, "last_updated_at": current_time, "name": "NA"}
-                client.green_wall.devices.insert_one(device_data)
-                device = client.green_wall.devices.find_one({"unique_id": unique_id})   
-                
+        device = client.green_wall.devices.find_one({"unique_id": unique_id})
+        if device:
+            newvalues = { "$set": { "last_updated_at": current_time } }
+            client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
+        else:    
+            device_data = { "unique_id": unique_id, "last_updated_at": current_time, "name": "NA"}
+            client.green_wall.devices.insert_one(device_data)
+            device = client.green_wall.devices.find_one({"unique_id": unique_id})   
+
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
      
