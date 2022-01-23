@@ -140,7 +140,7 @@ def updatesensor(id):
 	sensors = mongo.green_wall.sensors
 	form = AddSensorForm()
 	if form.validate_on_submit():
-		result = sensors.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'type': form.type.data, 'pos_X': form.position_x.data, 'pos_Y': form.position_y.data}})
+		result = sensors.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'type': form.stype.data, 'pos_X': form.position_x.data, 'pos_Y': form.position_y.data}})
 	return redirect(url_for('devices'))
 
 #===================================
