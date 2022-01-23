@@ -169,7 +169,7 @@ while True:
             print("Requesting Watering Data")
             pycom.rgbled(0x007f00) # Blinks Green
             #you can send the name of the device here, specify ALL for getting data of all devices
-            device_name="ALL"
+            device_name="pycom141"
             request_payload = send_coap_message (s, destination2, "watering",device_name)
             print("---- The returned value of watering info payload: ----" )
             print(request_payload)
@@ -178,25 +178,30 @@ while True:
             time.sleep(1)
 
             if request_payload == None:
-                print ("No response, watering with default value")
-                print("----  Watering Green Wall ----")
-                pycom.rgbled(0x00007f) # Blue Continuous
-                time.sleep(3)
+                print ("No response, no watering")
+                pycom.rgbled(0x7f7500) # Yellow Continuous
+                time.sleep(5)
                 pycom.rgbled(0x000000) # Turn LED off
-                print("----  Watering Finished ----")
-
             else:
+                relative_humidity_threshold = 50
                 rp = bytearray(request_payload)
                 rp = rp[5:]
                 new_rp = binascii.unhexlify(rp)
                 humidity_levels= cbord.loads(new_rp)
                 print(humidity_levels)
-                print("----  Watering Green Wall ----")
-                pycom.rgbled(0x00007f) # Blue Continuous
-                #time.sleep(int(watering_time))
-                pycom.rgbled(0x000000) # Turn LED off
-                print("----  Watering Finished ----")
-
+                relative_humidity = (100 * humidity_levels[0]['avg_humidity'])/4095
+                print("Relative Humidity: ", relative_humidity)
+                if relative_humidity < relative_humidity_threshold:
+                   pycom.rgbled(0x00007f) # Blue Continuous
+                   print("----  Watering Started ----")
+                   time.sleep(20)
+                   pycom.rgbled(0x000000) # Turn LED off
+                   print("----  Watering Finished ----")
+                else:
+                   print("Sufficient Relative Humidity")
+                   pycom.rgbled(0xffffff) #White Continous
+                   time.sleep(5)
+                   pycom.rgbled(0x000000) # Turn LED off
             pycom.heartbeat(True) # turn led to heartbeat
             time.sleep (30) # wait for 5 minutes.
             #Asking CoAP server for the watering info
