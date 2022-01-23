@@ -143,7 +143,7 @@ def delete(id):
 def updatesensorform():
 	id = request.args.get('id')
 	result_id = mongo.green_wall.sensors.find_one({'_id':ObjectId(id)})
-	form = AddForm(name=result_id['name'],type=result_id['type'],position_x=result_id['pos_X'], position_y=result_id['pos_Y'])
+	form = AddSensorForm(name=result_id['name'],type=result_id['type'],position_x=result_id['pos_X'], position_y=result_id['pos_Y'])
 	return render_template("update_sensor.html", form=form, id = id)
 
 #===================================
@@ -153,7 +153,7 @@ from bson import json_util
 @app.route('/updatesensor/<id>', methods=["POST"])
 def updatesensor(id):
 	sensors = mongo.green_wall.sensors
-	form = AddForm()
+	form = AddSensorForm()
 	if form.validate_on_submit():
 		result = sensors.update_one({'_id':ObjectId(id)},{'$set':{'name':form.name.data, 'type': form.type.data, 'pos_X': form.position_x.data, 'pos_Y': form.position_y.data}})
 	return redirect(url_for('devices'))
