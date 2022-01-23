@@ -168,16 +168,21 @@ while True:
             print("*********************************")
             print("Requesting Watering Data")
             pycom.rgbled(0x007f00) # Blinks Green
+            #send the mac address of the device as an indentifier
+            mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
+            print("The mac address is: " + mac_address)
+            print("The device IP adress is: " + ipaddr)
             #you can send the name of the device here, specify ALL for getting data of all devices
             device_name="pycom141"
-            request_payload = send_coap_message (s, destination2, "watering",device_name)
+            request_payload = [mac_address, device_name]
+            response_payload = send_coap_message (s, destination2, "watering",request_payload)
             print("---- The returned value of watering info payload: ----" )
             print(request_payload)
             time.sleep_ms(500)
             pycom.rgbled(0x000000) #Turn Led off
             time.sleep(1)
 
-            if request_payload == None:
+            if response_payload == None:
                 print ("No response, no watering")
                 pycom.rgbled(0x7f7500) # Yellow Continuous
                 time.sleep(5)
