@@ -51,8 +51,8 @@ def devices():
 def sensors(device_id):
 	sensor_list = list(mongo.green_wall.sensors.find({"device_id":ObjectId(device_id)}))
 	for s in sensor_list:
-		s_last_updated_at = datetime.datetime.strptime(s['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
-		if device_last_updated_at < datetime.datetime.utcnow() - timedelta(seconds=300):
+		sensor_last_updated_at = datetime.datetime.strptime(s['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
+		if sensor_last_updated_at < datetime.datetime.utcnow() - timedelta(seconds=300):
 			s['status'] = 'Inactive'
 		else:
 			s['status'] = 'Active'
