@@ -187,10 +187,10 @@ while True:
             print("The mac address is: " + mac_address)
             print("The device IP adress is: " + ipaddr)
             m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
-            print (m)
+            print(m)
             send_coap_message (s, destination, "moisture", m)
             send_coap_message (s, destination2, "humidity", m, mac_address)
-            time.sleep (200) # wait for 2 minute.
+            time.sleep(200) # wait for 3 minutes 20 seconds
 
         while not wlan.isconnected():
             pycom.heartbeat(False) # turn led to white
