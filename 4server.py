@@ -52,12 +52,11 @@ def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
     back_time -= len(cbor_msg)*period
 
     for e in cbor_msg:
-        prev_value += e
         
         back_time += period
 
         data_list.append({"resource": res_name,
-                          "data" : prev_value*factor,
+                          "data" : e*factor,
                           "ts": back_time*1000} )
         
     pprint.pprint (data_list)
@@ -119,8 +118,8 @@ class humidity_sensor(resource.PathCapable):
             beebotte_data = []
             for dm in device_measures:
                 beebotte_data.append(dm['measures'][0])
-            print("BBBBBBBB", beebotte_data)    
-            to_bbt(device['name'], 'humidity', measurements, period=300, factor=0.01) 
+         
+            to_bbt(device['name'], 'humidity', measurements, period=300, factor=0.0244) 
 
         else:
             print ("Unknown format")
