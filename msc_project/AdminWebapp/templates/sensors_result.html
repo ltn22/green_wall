@@ -12,6 +12,7 @@
                     <th>Sensor Name</th>
                     <th>Type</th>
                     <th>Status</th>
+                    <th>Last Recorded Value</th>
                     <th>Wall Location</th>
                     <th>Actions</th>
                 </tr>
@@ -28,6 +29,7 @@
                             <p class="text-danger font-weight-bold">{{ s["status"] }}</p>
                         {% endif %}    
 					</td>
+                    <td>{{ last_value }}</td>
                     <td>{{ s["pos_X"],s["pos_Y"] }}</td> 
                     <td class="show-btn hidden"><a id="updatef" href="{{url_for('updatesensorform',id=s['_id'])}}">
                     	<button type="submit" class="btn btn-success">Update</button></a>
