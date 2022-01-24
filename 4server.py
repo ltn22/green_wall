@@ -119,7 +119,7 @@ class humidity_sensor(resource.PathCapable):
             for dm in device_measures:
                 beebotte_data.append(dm['measures'][0])
          
-            to_bbt(device['name'], 'humidity', measurements, period=300, factor=0.0244) 
+            to_bbt(device['name'], 'humidity', measurements, period=200, factor=0.0244) 
 
         else:
             print ("Unknown format")
