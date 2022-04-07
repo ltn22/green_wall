@@ -16,7 +16,8 @@ import base64
 
 import requests
 
-from ttn_config import TTN_Downlink_Key 
+#from ttn_config import TTN_Downlink_Key 
+TTN_Downlink_Key = "ENTER YOUR KEY"
 
 app = Flask(__name__)
 app.debug = True
