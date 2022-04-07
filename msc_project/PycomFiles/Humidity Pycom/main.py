@@ -62,7 +62,7 @@ try:
 
         # create an OTAA authentication parameters
         app_eui = binascii.unhexlify('0000000000000000'.replace(' ',''))
-        app_key = binascii.unhexlify('11223344556677881122334455667788'.replace(' ',''))   # Acklio
+        app_key = binascii.unhexlify('11223344556677881122334490345245'.replace(' ',''))   # Acklio
         lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key),  timeout=0)
 
         pycom.heartbeat(False) # turn led to white
