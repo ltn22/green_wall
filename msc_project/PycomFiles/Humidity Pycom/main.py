@@ -15,7 +15,8 @@ messages (4.xx and 5.xx) and not taken into account by the program.
 #SERVER = "LORAWAN" # change to your server's IP address, or SIGFOX or LORAWAN
 #SERVER="SIGFOX"
 #Service for Gwen's database
-SERVER = "79.137.84.149" # change to your server's IP address, or SIGFOX or LORAWAN
+#SERVER = "79.137.84.149" # change to your server's IP address, or SIGFOX or LORAWAN
+SERVER = "LORAWAN"
 PORT   = 5683
 destination = (SERVER, PORT)
 
@@ -35,7 +36,7 @@ import network
 import pycom
 import os
 import machine
-
+import struct
 
 upython = (sys.implementation.name == "micropython")
 print (upython, sys.implementation.name)
@@ -75,9 +76,9 @@ try:
 
         pycom.rgbled(0x000000) # black
 
-        s = socket.socket(socket.AF_LORA, socket.SOCK_RAW)
-        s.setsockopt(socket.SOL_LORA, socket.SO_DR, 5)
-        s.setsockopt(socket.SOL_LORA,  socket.SO_CONFIRMED,  False)
+        s_lora = socket.socket(socket.AF_LORA, socket.SOCK_RAW)
+        s_lora.setsockopt(socket.SOL_LORA, socket.SO_DR, 5)
+        s_lora.setsockopt(socket.SOL_LORA,  socket.SO_CONFIRMED,  False)
 
         MTU = 200 # Maximun Transmission Unit, for DR 0 should be set to less than 50
 
@@ -122,6 +123,7 @@ try:
 
 
     sigfox_MID = 1 # when SCHC is used for Sigfox
+    lorawan_MID = 1 # When SCHC is used for LORAWAN
     def send_coap_message(sock, destination, uri_path, message, unique_id = None):
         if destination[0] == "SIGFOX": # do SCHC compression
             global sigfox_MID
@@ -147,20 +149,47 @@ try:
             s.send(msg)
             return None # don't use downlink
 
-        # for other technologies we wend a regular CoAP message
-        coap = CoAP.Message()
-        coap.new_header(type=CoAP.NON, code=CoAP.POST)
-        coap.add_option (CoAP.Uri_path, uri_path)
-        if unique_id:
-            coap.add_option(CoAP.Uri_path, unique_id)
-        # /proxy/mac_address
-        coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
-        coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
-        coap.add_payload(cbor.dumps(message))
-        coap.dump(hexa=True)
-        answer = CoAP.send_ack(s, destination, coap)
+        if destination[0] == "LORAWAN": # do SCHC compression
+            global lorawan_MID # /!\ change name to lorawan_token
 
-        return answer
+            """ SCHC compression for Sigfox, use rule ID 98 stored fPort,
+            followed by MID on 4 bits and 4 bits for an index on Uri-path.
+            the SCHC header is TTTT UUUU
+            """
+            uri_idx = ['moisture', "memory", "battery", None, None, None, None, None,
+                        None, None, None, None, None, None, None, None].index(uri_path)
+
+            schc_residue = (sigfox_MID << 4) | uri_idx # MMMM and UU
+
+            lorawan_MID += 1
+            lorawan_MID &= 0x0F # on 4 bits
+            if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
+
+            msg = struct.pack("!B", schc_residue) # add SCHC header to the message
+            msg += cbor.dumps(message)
+
+            print ("length", len(msg), binascii.hexlify(msg))
+
+            # rule_ID = 98
+            # s_lora.bind(rule_ID)
+            #s_lora.send(msg)
+            return None # don't use downlink
+
+        # for other technologies we wend a regular CoAP message
+        # coap = CoAP.Message()
+        # coap.new_header(type=CoAP.NON, code=CoAP.POST)
+        # coap.add_option (CoAP.Uri_path, uri_path)
+        # if unique_id:
+        #     coap.add_option(CoAP.Uri_path, unique_id)
+        # # /proxy/mac_address
+        # coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
+        # coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
+        # coap.add_payload(cbor.dumps(message))
+        # coap.dump(hexa=True)
+        # print("THE TAREGT NETWORK is:", destination)
+        # answer = CoAP.send_ack(s, destination, coap)
+        #
+        # return answer
 
     if destination[0] == "SIGFOX":
         coap_header_size = 1 # SCHC header size
@@ -178,36 +207,36 @@ except OSError as err:
 
 
 # lets run it forever
-while True:
-    try:
-        while wlan.isconnected():
-            pycom.heartbeat(True) # turn led to heartbeat
-            #send the mac address of the device as an indentifier
-            mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
-            print("The mac address is: " + mac_address)
-            print("The device IP adress is: " + ipaddr)
-            m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
-            print(m)
-            send_coap_message (s, destination, "moisture", m)
-            send_coap_message (s, destination2, "humidity", m, mac_address)
-            time.sleep(200) # wait for 3 minutes 20 seconds
-
-        while not wlan.isconnected():
-            pycom.heartbeat(False) # turn led to white
-            print ("WiFi disconnected")
-            wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-            #wlan.ifconfig(config=('10.51.0.241', '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-            #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
-            #wlan.connect('lala', auth=(network.WLAN.WPA2, '12341234'))
-            wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
-            time.sleep(1)
-            pycom.rgbled(0x7f0000) # red
-            time.sleep(1)
-            pycom.rgbled(0x000000) # turn off led
-            #Shows a red light if not connected
-
-    except OSError as err:
-        time.sleep(30)
-        print("an error ocurred")
-        print("OS error: {0}".format(err))
-        machine.reset()
+# while True:
+#     try:
+#         #while wlan.isconnected():
+#         pycom.heartbeat(True) # turn led to heartbeat
+#         #send the mac address of the device as an indentifier
+#         mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
+#         print("The mac address is: " + mac_address)
+#         print("The device IP adress is: " + ipaddr)
+#         m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+#         print(m)
+#         #send_coap_message (s_lora, destination, "moisture", m)
+#         #send_coap_message (s, destination2, "humidity", m, mac_address)
+#         time.sleep(200) # wait for 3 minutes 20 seconds
+#
+#         # #while not wlan.isconnected():
+#         #     pycom.heartbeat(False) # turn led to white
+#         #     print ("WiFi disconnected")
+#         #     wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
+#         #     #wlan.ifconfig(config=('10.51.0.241', '255.255.255.0', '10.51.0.1', '192.108.119.134'))
+#         #     #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
+#         #     #wlan.connect('lala', auth=(network.WLAN.WPA2, '12341234'))
+#         #     wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+#         #     time.sleep(1)
+#         #     pycom.rgbled(0x7f0000) # red
+#         #     time.sleep(1)
+#         #     pycom.rgbled(0x000000) # turn off led
+#         #     #Shows a red light if not connected
+#
+#     except OSError as err:
+#         time.sleep(30)
+#         print("an error ocurred")
+#         print("OS error: {0}".format(err))
+#         machine.reset()

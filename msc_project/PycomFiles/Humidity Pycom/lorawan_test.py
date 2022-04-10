@@ -4,6 +4,18 @@ import time
 import pycom
 import binascii
 
+upython = (sys.implementation.name == "micropython")
+print (upython, sys.implementation.name)
+if upython:
+    import kpn_senml.cbor_encoder as cbor #pycom
+    import pycom
+    import gc
+    import struct
+else:
+    import cbor2 as cbor  # terminal on computer
+    import psutil
+
+
 lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)
 #
 mac = lora.mac()
@@ -35,13 +47,40 @@ s = socket.socket(socket.AF_LORA, socket.SOCK_RAW)
 s.setsockopt(socket.SOL_LORA, socket.SO_DR, 5)
 s.setsockopt(socket.SOL_LORA,  socket.SO_CONFIRMED,  False)
 
+# -----------------  SENSORS -----------------------
+from machine import ADC
+adc=ADC()
+
+apin20 = adc.channel(pin="P20",attn=ADC.ATTN_11DB)
+apin19 = adc.channel(pin="P19",attn=ADC.ATTN_11DB)
+apin18 = adc.channel(pin="P18",attn=ADC.ATTN_11DB)
+apin17 = adc.channel(pin="P17",attn=ADC.ATTN_11DB)
+apin16 = adc.channel(pin="P16",attn=ADC.ATTN_11DB)
+apin15 = adc.channel(pin="P15",attn=ADC.ATTN_11DB)
+apin14 = adc.channel(pin="P14",attn=ADC.ATTN_11DB)
+apin13 = adc.channel(pin="P13",attn=ADC.ATTN_11DB)
+
+
+# ------------- SENDING DATA ------------------------
+
+REPORT_PERIOD = 60 # send a frame every 60 sample (1 hour)
+
+# Offset are used to desynchronize sendings, and the value is != form 0
+# at the first round, after the first sending offset is set to 0, but since
+# buffers have different filling level, the desynchronization is kept. In the
+# default configuration, one message is sent every 15 minutes.
+
+m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+print("Message Text: ", m)
+
+
 while True:
     pycom.rgbled(0x100000) # red
     s.setblocking(True)
     s.settimeout(10)
 
     try:
-        s.send('Hello LoRa')
+        s.send(cbor.dumps(m))
     except:
         print ('timeout in sending')
 

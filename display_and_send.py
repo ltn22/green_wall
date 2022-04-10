@@ -6,5 +6,7 @@ s.bind(('0.0.0.0', 35584)) # 33033 + 2551 as the defined port on pycom device
 
 while True:
     data, addr = s.recvfrom(1500)
-    print (data)
-    s.sendto("Pleased to meet you!".encode(), addr)
+    j = cbor.loads(data)
+
+    print ("the humidity data: ", j)
+    s.sendto("Thanks for sending humidity measurements Pycom !".encode(), addr)
