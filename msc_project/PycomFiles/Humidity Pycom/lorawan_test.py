@@ -3,6 +3,9 @@ import socket
 import time
 import pycom
 import binascii
+import struct
+import sys
+from machine import ADC
 
 upython = (sys.implementation.name == "micropython")
 print (upython, sys.implementation.name)
@@ -47,8 +50,12 @@ s = socket.socket(socket.AF_LORA, socket.SOCK_RAW)
 s.setsockopt(socket.SOL_LORA, socket.SO_DR, 5)
 s.setsockopt(socket.SOL_LORA,  socket.SO_CONFIRMED,  False)
 
+MTU = 200
+lorawan_MID = 1 # When SCHC is used for LORAWAN
+
+
 # -----------------  SENSORS -----------------------
-from machine import ADC
+
 adc=ADC()
 
 apin20 = adc.channel(pin="P20",attn=ADC.ATTN_11DB)
@@ -70,8 +77,8 @@ REPORT_PERIOD = 60 # send a frame every 60 sample (1 hour)
 # buffers have different filling level, the desynchronization is kept. In the
 # default configuration, one message is sent every 15 minutes.
 
-m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
-print("Message Text: ", m)
+message = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+print("Message Text: ", message)
 
 
 while True:
@@ -80,7 +87,29 @@ while True:
     s.settimeout(10)
 
     try:
-        s.send(cbor.dumps(m))
+        """ SCHC compression for Sigfox, use rule ID 98 stored fPort,
+        followed by MID on 4 bits and 4 bits for an index on Uri-path.
+        the SCHC header is TTTT UUUU
+        """
+        # uri_idx = ['moisture', "memory", "battery", None, None, None, None, None,
+        #             None, None, None, None, None, None, None, None].index(uri_path)
+        #
+        # schc_residue = (lorawan_MID << 4) | uri_idx # MMMM and UU
+        #
+        # lorawan_MID += 1
+        # lorawan_MID &= 0x0F # on 4 bits
+        # if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
+        #
+        # msg = struct.pack("!B", schc_residue) # add SCHC header to the message
+        # msg += cbor.dumps(message)
+
+        msg = cbor.dumps(message)
+        print ("length", len(msg), binascii.hexlify(msg))
+
+        rule_ID = 98
+        s.bind(rule_ID)
+        s.send(msg)
+        #s.send(cbor.dumps(m))
     except:
         print ('timeout in sending')
 
@@ -88,7 +117,6 @@ while True:
 
     try:
         data = s.recv(64)
-
         print(data)
         pycom.rgbled(0x001000) # green
     except:

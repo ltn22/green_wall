@@ -55,9 +55,7 @@ try:
     sigfox = False
     if SERVER == "LORAWAN":
         from network import LoRa
-
         lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)
-        #
         mac = lora.mac()
         print ('devEUI: ',  binascii.hexlify(mac))
 
@@ -81,17 +79,6 @@ try:
         s_lora.setsockopt(socket.SOL_LORA,  socket.SO_CONFIRMED,  False)
 
         MTU = 200 # Maximun Transmission Unit, for DR 0 should be set to less than 50
-
-    elif SERVER == "SIGFOX":
-        from network import Sigfox
-
-        # initalise Sigfox for RCZ1 (You may need a different RCZ Region)
-        sfx = Sigfox(mode=Sigfox.SIGFOX, rcz=Sigfox.RCZ1)
-        s = socket.socket(socket.AF_SIGFOX, socket.SOCK_RAW)
-
-        MTU = 12
-        print ("SIGFOX", binascii.hexlify(sfx.id()))
-        sigfox = True
 
     else: # WIFI with IP address
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -120,84 +107,50 @@ try:
     # buffers have different filling level, the desynchronization is kept. In the
     # default configuration, one message is sent every 15 minutes.
 
-
-
-    sigfox_MID = 1 # when SCHC is used for Sigfox
-    lorawan_MID = 1 # When SCHC is used for LORAWAN
-    def send_coap_message(sock, destination, uri_path, message, unique_id = None):
-        if destination[0] == "SIGFOX": # do SCHC compression
-            global sigfox_MID
-
-            """ SCHC compression for Sigfox, use rule ID 0 stored on 2 bits,
-            followed by MID on 4 bits and 2 bits for an index on Uri-path.
-
-            the SCHC header is RRMMMMUU
-            """
-            uri_idx = ['temperature', 'pressure', 'humidity', 'memory'].index(uri_path)
-
-            schc_residue = 0x00 # ruleID in 2 bits RR
-            schc_residue |= (sigfox_MID << 2) | uri_idx # MMMM and UU
-
-            sigfox_MID += 1
-            sigfox_MID &= 0x0F # on 4 bits
-            if sigfox_MID == 0: sigfox_MID = 1 # never use MID = 0
-
-            msg = struct.pack("!B", schc_residue) # add SCHC header to the message
-            msg += cbor.dumps(message)
-
-            print ("length", len(msg), binascii.hexlify(msg))
-            s.send(msg)
-            return None # don't use downlink
-
-        if destination[0] == "LORAWAN": # do SCHC compression
-            global lorawan_MID # /!\ change name to lorawan_token
-
-            """ SCHC compression for Sigfox, use rule ID 98 stored fPort,
-            followed by MID on 4 bits and 4 bits for an index on Uri-path.
-            the SCHC header is TTTT UUUU
-            """
-            uri_idx = ['moisture', "memory", "battery", None, None, None, None, None,
-                        None, None, None, None, None, None, None, None].index(uri_path)
-
-            schc_residue = (sigfox_MID << 4) | uri_idx # MMMM and UU
-
-            lorawan_MID += 1
-            lorawan_MID &= 0x0F # on 4 bits
-            if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
-
-            msg = struct.pack("!B", schc_residue) # add SCHC header to the message
-            msg += cbor.dumps(message)
-
-            print ("length", len(msg), binascii.hexlify(msg))
-
-            # rule_ID = 98
-            # s_lora.bind(rule_ID)
-            #s_lora.send(msg)
-            return None # don't use downlink
-
-        # for other technologies we wend a regular CoAP message
-        # coap = CoAP.Message()
-        # coap.new_header(type=CoAP.NON, code=CoAP.POST)
-        # coap.add_option (CoAP.Uri_path, uri_path)
-        # if unique_id:
-        #     coap.add_option(CoAP.Uri_path, unique_id)
-        # # /proxy/mac_address
-        # coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
-        # coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
-        # coap.add_payload(cbor.dumps(message))
-        # coap.dump(hexa=True)
-        # print("THE TAREGT NETWORK is:", destination)
-        # answer = CoAP.send_ack(s, destination, coap)
-        #
-        # return answer
-
-    if destination[0] == "SIGFOX":
-        coap_header_size = 1 # SCHC header size
-    else:
-        coap_header_size = 25 #  coap header size approximated
-
-    print ("MTU size is", MTU, "Payload size is", MTU-coap_header_size, "samples ", REPORT_PERIOD)
     wlan = network.WLAN(mode=network.WLAN.STA)
+
+    lorawan_MID = 1 # When SCHC is used for LORAWAN
+
+    def send_coap_message(sock, destination, uri_path, message, unique_id = None):
+        if destination == "LORAWAN": # do SCHC compression
+            global lorawan_MID # /!\ change name to lorawan_token
+            # """ SCHC compression for Sigfox, use rule ID 98 stored fPort,
+            # followed by MID on 4 bits and 4 bits for an index on Uri-path.
+            # the SCHC header is TTTT UUUU
+            # """
+            # uri_idx = ['moisture', "memory", "battery", None, None, None, None, None,
+            #             None, None, None, None, None, None, None, None].index(uri_path)
+            #
+            # schc_residue = (lorawan_MID << 4) | uri_idx # MMMM and UU
+            #
+            # lorawan_MID += 1
+            # lorawan_MID &= 0x0F # on 4 bits
+            # if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
+            #
+            # msg = struct.pack("!B", schc_residue) # add SCHC header to the message
+            # msg += cbor.dumps(message)
+            msg = cbor.dumps(message)
+            print ("length", len(msg), binascii.hexlify(msg))
+            rule_ID = 98
+            #s_lora.bind(rule_ID)
+            s_lora.send(msg)
+            return None # don't use downlink
+        else:
+            # for other technologies we wend a regular CoAP message
+            coap = CoAP.Message()
+            coap.new_header(type=CoAP.NON, code=CoAP.POST)
+            coap.add_option (CoAP.Uri_path, uri_path)
+            if unique_id:
+                coap.add_option(CoAP.Uri_path, unique_id)
+            # /proxy/mac_address
+            coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
+            coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
+            coap.add_payload(cbor.dumps(message))
+            coap.dump(hexa=True)
+            print("THE TAREGT NETWORK is:", destination)
+            answer = CoAP.send_ack(s, destination, coap)
+            return answer
+
 
 except OSError as err:
     time.sleep(30)
