@@ -69,7 +69,7 @@ apin13 = adc.channel(pin="P13",attn=ADC.ATTN_11DB)
 
 
 # ------------- SENDING DATA ------------------------
-
+lorawan_MID = 1
 REPORT_PERIOD = 60 # send a frame every 60 sample (1 hour)
 
 # Offset are used to desynchronize sendings, and the value is != form 0
@@ -79,7 +79,7 @@ REPORT_PERIOD = 60 # send a frame every 60 sample (1 hour)
 
 message = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
 print("Message Text: ", message)
-
+uri_path = "moisture"
 
 while True:
     pycom.rgbled(0x100000) # red
@@ -91,19 +91,19 @@ while True:
         followed by MID on 4 bits and 4 bits for an index on Uri-path.
         the SCHC header is TTTT UUUU
         """
-        # uri_idx = ['moisture', "memory", "battery", None, None, None, None, None,
-        #             None, None, None, None, None, None, None, None].index(uri_path)
-        #
-        # schc_residue = (lorawan_MID << 4) | uri_idx # MMMM and UU
-        #
-        # lorawan_MID += 1
-        # lorawan_MID &= 0x0F # on 4 bits
-        # if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
-        #
-        # msg = struct.pack("!B", schc_residue) # add SCHC header to the message
-        # msg += cbor.dumps(message)
+        uri_idx = ["moisture", "memory", "battery", None, None, None, None, None,
+                    None, None, None, None, None, None, None, None].index(uri_path)
 
-        msg = cbor.dumps(message)
+        schc_residue = (lorawan_MID << 4) | uri_idx # MMMM and UU
+
+        lorawan_MID += 1
+        lorawan_MID &= 0x0F # on 4 bits
+        if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
+
+        msg = struct.pack("!B", schc_residue) # add SCHC header to the message
+        msg += cbor.dumps(message)
+
+        #msg = cbor.dumps(message)
         print ("length", len(msg), binascii.hexlify(msg))
 
         rule_ID = 98
