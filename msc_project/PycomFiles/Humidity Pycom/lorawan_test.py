@@ -81,6 +81,7 @@ message = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(),
 print("Message Text: ", message)
 uri_path = "moisture"
 
+
 while True:
     pycom.rgbled(0x100000) # red
     s.setblocking(True)

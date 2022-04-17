@@ -4,7 +4,6 @@ information either on LoRaWAN Networks, Sigfox or Wi-Fi. Selection is done
 with the variable SERVER (see below). If a BME280 is connected to the LoPY,
 measurement are taken from the sensor, otherwise sensor's behavior is emulated.
 On python terminal values are emulated.
-
 Data are sent with CoAP on 4 different URI /temperature, /pressure, /humidity,
 /memory. On Sigfox, the SCHC compression of the CoAP header is provided and only
 one parameter is sent (it can be changed in the code). On LoRaWAN and Wi-Fi all
@@ -12,11 +11,8 @@ the parameters are sent on a full CoAP message. Downlink is limited to error
 messages (4.xx and 5.xx) and not taken into account by the program.
 """
 
-#SERVER = "LORAWAN" # change to your server's IP address, or SIGFOX or LORAWAN
-#SERVER="SIGFOX"
 #Service for Gwen's database
-#SERVER = "79.137.84.149" # change to your server's IP address, or SIGFOX or LORAWAN
-SERVER = "LORAWAN"
+SERVER = "79.137.84.149" # change to your server's IP address, or SIGFOX or LORAWAN
 PORT   = 5683
 destination = (SERVER, PORT)
 
@@ -24,6 +20,10 @@ destination = (SERVER, PORT)
 PORT2 = 5684
 destination2 = (SERVER, PORT2)
 
+# change your secondary network to SIGFOX or LORAWAN
+SERVER2 = "LORAWAN"
+
+# assign some IP addresses to the PyCOM devices
 ipaddr='10.51.0.241'
 #ipaddr='10.51.0.242'
 
@@ -36,7 +36,7 @@ import network
 import pycom
 import os
 import machine
-import struct
+
 
 upython = (sys.implementation.name == "micropython")
 print (upython, sys.implementation.name)
@@ -50,12 +50,13 @@ else:
     import psutil
 
 try:
-    #----- CONNECT TO THE APPROPRIATE NETWORK --------
+    #----- CONNECT TO THE APPROPRIATE NETWORK(S) --------
 
-    sigfox = False
-    if SERVER == "LORAWAN":
+    if SERVER2 == "LORAWAN":
         from network import LoRa
+
         lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)
+        #
         mac = lora.mac()
         print ('devEUI: ',  binascii.hexlify(mac))
 
@@ -78,11 +79,12 @@ try:
         s_lora.setsockopt(socket.SOL_LORA, socket.SO_DR, 5)
         s_lora.setsockopt(socket.SOL_LORA,  socket.SO_CONFIRMED,  False)
 
+        print("Established LoRA socket")
         MTU = 200 # Maximun Transmission Unit, for DR 0 should be set to less than 50
 
-    else: # WIFI with IP address
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        MTU = 200 # maximum packet size, could be higher
+    # WIFI with IP address
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    MTU = 200 # maximum packet size, could be higher
 
     # -----------------  SENSORS -----------------------
     from machine import ADC
@@ -107,32 +109,26 @@ try:
     # buffers have different filling level, the desynchronization is kept. In the
     # default configuration, one message is sent every 15 minutes.
 
-    wlan = network.WLAN(mode=network.WLAN.STA)
-
-    lorawan_MID = 1 # When SCHC is used for LORAWAN
-
+    lorawan_MID = 1 # when SCHC is used for Sigfox
     def send_coap_message(sock, destination, uri_path, message, unique_id = None):
         if destination == "LORAWAN": # do SCHC compression
             global lorawan_MID # /!\ change name to lorawan_token
-            # """ SCHC compression for Sigfox, use rule ID 98 stored fPort,
+            # """ SCHC compression, use rule ID 98 stored fPort,
             # followed by MID on 4 bits and 4 bits for an index on Uri-path.
             # the SCHC header is TTTT UUUU
             # """
-            # uri_idx = ['moisture', "memory", "battery", None, None, None, None, None,
-            #             None, None, None, None, None, None, None, None].index(uri_path)
-            #
-            # schc_residue = (lorawan_MID << 4) | uri_idx # MMMM and UU
-            #
-            # lorawan_MID += 1
-            # lorawan_MID &= 0x0F # on 4 bits
-            # if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
-            #
-            # msg = struct.pack("!B", schc_residue) # add SCHC header to the message
-            # msg += cbor.dumps(message)
-            msg = cbor.dumps(message)
+            uri_idx = ['humidity', None, None, None, None, None].index(uri_path)
+            schc_residue = (lorawan_MID << 4) | uri_idx # MMMM and UU
+
+            lorawan_MID += 1
+            lorawan_MID &= 0x0F # on 4 bits
+            if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
+
+            msg = struct.pack("!B", schc_residue) # add SCHC header to the message
+            msg += cbor.dumps(message)
             print ("length", len(msg), binascii.hexlify(msg))
             rule_ID = 98
-            #s_lora.bind(rule_ID)
+            s_lora.bind(rule_ID)
             s_lora.send(msg)
             return None # don't use downlink
         else:
@@ -147,10 +143,17 @@ try:
             coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
             coap.add_payload(cbor.dumps(message))
             coap.dump(hexa=True)
-            print("THE TAREGT NETWORK is:", destination)
             answer = CoAP.send_ack(s, destination, coap)
+
             return answer
 
+    if destination == "LORAWAN":
+        coap_header_size = 1 # SCHC header size
+    else:
+        coap_header_size = 25 #  coap header size approximated
+
+    print ("MTU size is", MTU, "Payload size is", MTU-coap_header_size, "samples ", REPORT_PERIOD)
+    wlan = network.WLAN(mode=network.WLAN.STA)
 
 except OSError as err:
     time.sleep(30)
@@ -158,38 +161,40 @@ except OSError as err:
     print("OS error: {0}".format(err))
     machine.reset()
 
+lora_counter = 0
 
-# lets run it forever
-# while True:
-#     try:
-#         #while wlan.isconnected():
-#         pycom.heartbeat(True) # turn led to heartbeat
-#         #send the mac address of the device as an indentifier
-#         mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
-#         print("The mac address is: " + mac_address)
-#         print("The device IP adress is: " + ipaddr)
-#         m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
-#         print(m)
-#         #send_coap_message (s_lora, destination, "moisture", m)
-#         #send_coap_message (s, destination2, "humidity", m, mac_address)
-#         time.sleep(200) # wait for 3 minutes 20 seconds
-#
-#         # #while not wlan.isconnected():
-#         #     pycom.heartbeat(False) # turn led to white
-#         #     print ("WiFi disconnected")
-#         #     wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-#         #     #wlan.ifconfig(config=('10.51.0.241', '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-#         #     #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
-#         #     #wlan.connect('lala', auth=(network.WLAN.WPA2, '12341234'))
-#         #     wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
-#         #     time.sleep(1)
-#         #     pycom.rgbled(0x7f0000) # red
-#         #     time.sleep(1)
-#         #     pycom.rgbled(0x000000) # turn off led
-#         #     #Shows a red light if not connected
-#
-#     except OSError as err:
-#         time.sleep(30)
-#         print("an error ocurred")
-#         print("OS error: {0}".format(err))
-#         machine.reset()
+while True:
+    try:
+        while wlan.isconnected():
+            pycom.heartbeat(True) # turn led to heartbeat
+            #send the mac address of the device as an indentifier
+            mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
+            print("The mac address is: " + mac_address)
+            print("The device IP adress is: " + ipaddr)
+            m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+            print(m)
+            send_coap_message (s, destination, "moisture", m)
+            send_coap_message (s, destination2, "humidity", m, mac_address)
+            print("SUCCESS WiFi")
+            if (lora_counter % 2 == 0):
+                send_coap_message (s, "LORAWAN", "humidity", m)
+                print("SUCCESS LORA")
+            time.sleep(60) # wait for 3 minutes 20 seconds
+            lora_counter += 1
+
+        while not wlan.isconnected():
+            pycom.heartbeat(False) # turn led to white
+            print ("WiFi disconnected")
+            wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
+            #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
+            wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+            time.sleep(1)
+            pycom.rgbled(0x7f0000) # red
+            time.sleep(1)
+            pycom.rgbled(0x000000) # turn off led
+
+    except OSError as err:
+        time.sleep(30)
+        print("an error ocurred")
+        print("OS error: {0}".format(err))
+        machine.reset()
