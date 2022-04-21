@@ -210,7 +210,7 @@ def main():
 
     root.add_resource(['humidity'], humidity_sensor())
     root.add_resource(['watering'], watering_info())
-    root.add_resource(['device'], device_info())
+
 
     #Uncomment next line to use Default CoAP port
     #asyncio.Task(aiocoap.Context.create_server_context(root))
