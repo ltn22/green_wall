@@ -11,6 +11,9 @@ the parameters are sent on a full CoAP message. Downlink is limited to error
 messages (4.xx and 5.xx) and not taken into account by the program.
 """
 
+#device name
+DEVICE_NAME = "LP3"
+
 #Service for Gwen's database
 SERVER = "79.137.84.149" # change to your server's IP address, or SIGFOX or LORAWAN
 PORT   = 5683
@@ -135,7 +138,8 @@ try:
             # for other technologies we wend a regular CoAP message
             coap = CoAP.Message()
             coap.new_header(type=CoAP.NON, code=CoAP.POST)
-            coap.add_option (CoAP.Uri_path, uri_path)
+            coap.add_option(CoAP.Uri_path, uri_path)
+            coap.add_option(CoAP.Uri_path, DEVICE_NAME)
             if unique_id:
                 coap.add_option(CoAP.Uri_path, unique_id)
             # /proxy/mac_address
@@ -173,12 +177,12 @@ while True:
             print("The device IP adress is: " + ipaddr)
             m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print(m)
-            send_coap_message (s, destination, "moisture", m)
+            #send_coap_message (s, destination, "moisture", m)
             send_coap_message (s, destination2, "humidity", m, mac_address)
             print("SUCCESS WiFi")
-            if (lora_counter % 2 == 0):
-                send_coap_message (s, "LORAWAN", "humidity", m)
-                print("SUCCESS LORA")
+            # if (lora_counter % 2 == 0):
+            #     send_coap_message (s, "LORAWAN", "humidity", m)
+            #     print("SUCCESS LORA")
             time.sleep(60) # wait for 3 minutes 20 seconds
             lora_counter += 1
 
