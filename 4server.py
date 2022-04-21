@@ -69,7 +69,8 @@ class humidity_sensor(resource.PathCapable):
     async def render(self, request):
         print ("render", request.opt.uri_path)
         device_name = request.opt.uri_path[0]
-        unique_id = request.opt.uri_path[1]
+        if request.opt.uri_path.len() > 1 :
+            unique_id = request.opt.uri_path[1]
     
         print ("The unique id is: " + unique_id)
         current_time = str(datetime.datetime.utcnow())
