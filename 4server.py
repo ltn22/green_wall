@@ -63,16 +63,11 @@ def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
     
     bbt.writeBulk(channel, data_list)
 
-
 class humidity_sensor(resource.PathCapable):
 
     async def render(self, request):
         print ("render", request.opt.uri_path)
-        device_name = request.opt.uri_path[0]
-        if len(request.opt.uri_path) > 1 :
-            unique_id = request.opt.uri_path[1]
-        else:
-            unique_id = '12345'    
+        unique_id = request.opt.uri_path[0]
     
         print ("The unique id is: " + unique_id)
         current_time = str(datetime.datetime.utcnow())
@@ -86,19 +81,20 @@ class humidity_sensor(resource.PathCapable):
             measurements = cbor.loads(request.payload)
             
             #if not found, add the device details in the device table in MongoDB 
-            device = client.green_wall.devices.find_one({"name": device_name})
+            device = client.green_wall.devices.find_one({"unique_id": unique_id})
             if device:
-                newvalues = { "$set": { "last_updated_at": current_time, "unique_id": unique_id } }
-                client.green_wall.devices.update_one({"name": device_name}, newvalues)
+                newvalues = { "$set": { "last_updated_at": current_time } }
+                client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
             else:    
-                device_data = { "unique_id": unique_id, "last_updated_at": current_time, "name": device_name}
+                device_data = { "unique_id": unique_id, "last_updated_at": current_time, "name": "NA"}
                 client.green_wall.devices.insert_one(device_data)
                 device = client.green_wall.devices.find_one({"unique_id": unique_id})
             
+            sensor_counter = 1
             sensor_pin_counter = 13
             # store the measurements with relation to device and sensors
             for m in measurements:
-                sensor_name = device['name'] + "P"+ str(sensor_pin_counter)
+                sensor_name = "S" + str(sensor_counter) + "P"+ str(sensor_pin_counter)
                 sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
                 if sensor:
                     newvalues = { "$set": { "last_updated_at": current_time} }
@@ -110,6 +106,7 @@ class humidity_sensor(resource.PathCapable):
                 #add the measurement for the sensor
                 measurement_data = { "sensor_id": sensor['_id'], "type": "humidity", "value": m, "recorded_at": current_time}
                 client.green_wall.measurements.insert_one(measurement_data)
+                sensor_counter += 1
                 sensor_pin_counter += 1
             # store the measurements for raw data collection
             device_data = { "device_id": device['_id'],
@@ -122,7 +119,7 @@ class humidity_sensor(resource.PathCapable):
             for dm in device_measures:
                 beebotte_data.append(dm['measures'][0])
          
-            #to_bbt(device['name'], 'humidity', measurements, period=200, factor=0.0244) 
+            to_bbt(device['name'], 'humidity', measurements, period=200, factor=0.0244) 
 
         else:
             print ("Unknown format")
@@ -213,7 +210,6 @@ def main():
 
     root.add_resource(['humidity'], humidity_sensor())
     root.add_resource(['watering'], watering_info())
-
 
     #Uncomment next line to use Default CoAP port
     #asyncio.Task(aiocoap.Context.create_server_context(root))

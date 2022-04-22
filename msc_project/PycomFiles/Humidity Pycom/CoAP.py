@@ -259,9 +259,10 @@ def send_ack(s, dest, coap):
     attempts = 1
 
     while True:
-        s.sendto (coap.to_byte(), dest)
+        print ("DEST ======", dest)
+        k =s.sendto (coap.to_byte(), dest)
+        print (k)
 
-        
         if coap.get_type() == NON:
             return None
 
