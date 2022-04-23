@@ -171,13 +171,13 @@ while True:
         while wlan.isconnected():
             pycom.heartbeat(True) # turn led to heartbeat
             if (lora_counter % 2 == 0):
-                 m = [dev_eui, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+                 m = [DEVICE_NAME,dev_eui, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
                  send_coap_message (s_lora, "LORAWAN", "humidity", m, dev_eui)
                  print("SUCCESS LORA")
             else:
                 #send the mac address of the device as an indentifier
                 mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
-                print("The mac address is: " + unique_id)
+                print("The mac address is: " + mac_address)
                 print("The device IP adress is: " + ipaddr)
                 m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
                 print(m)

@@ -87,8 +87,8 @@ class humidity_sensor(resource.PathCapable):
             #if not found, add the device details in the device table in MongoDB 
             device = client.green_wall.devices.find_one({"unique_id": unique_id})
             if device:
-                newvalues = { "$set": { "last_updated_at": current_time, "unique_id": unique_id } }
-                client.green_wall.devices.update_one({"name": device_name}, newvalues)
+                newvalues = { "$set": { "last_updated_at": current_time, "name": device_name } }
+                client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
             else:    
                 device_data = { "unique_id": unique_id, "last_updated_at": current_time, "name": device_name}
                 client.green_wall.devices.insert_one(device_data)
