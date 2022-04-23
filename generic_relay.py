@@ -150,6 +150,7 @@ def get_from_acklio():
             "devEUI": fromGW["devEUI"],
             "data"  : base64.b64encode(downlink).decode('utf-8')
         }
+        print("HERE in downlink")
         resp = Response(response=json.dumps(answer), 
                         status=200, 
                         mimetype="application/json")
