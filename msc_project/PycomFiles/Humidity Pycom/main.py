@@ -59,7 +59,6 @@ try:
         from network import LoRa
 
         lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)
-        #
         mac = lora.mac()
         print ('devEUI: ',  binascii.hexlify(mac))
 
@@ -172,16 +171,18 @@ while True:
         while wlan.isconnected():
             pycom.heartbeat(True) # turn led to heartbeat
             #send the mac address of the device as an indentifier
-            mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
-            print("The mac address is: " + mac_address)
+            unique_id = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
+            print("The mac address is: " + unique_id)
             print("The device IP adress is: " + ipaddr)
             m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
             print(m)
             #send_coap_message (s, destination, "moisture", m)
-            send_coap_message (s_wifi, destination2, "humidity", m, mac_address)
+            send_coap_message (s_wifi, destination2, "humidity", m, unique_id)
             print("SUCCESS WiFi")
             if (lora_counter % 2 == 0):
-                 send_coap_message (s_lora, "LORAWAN", "humidity", m)
+                 unique_id = binascii.hexlify(lora.mac())
+                 print("THE UNIQUE ID LORA:", unique_id)
+                 send_coap_message (s_lora, "LORAWAN", "humidity", m, unique_id)
                  print("SUCCESS LORA")
             time.sleep(60) # wait for 3 minutes 20 seconds
             lora_counter += 1

@@ -72,7 +72,7 @@ class humidity_sensor(resource.PathCapable):
         if len(request.opt.uri_path) > 1 :
             unique_id = request.opt.uri_path[1]
         else:
-            unique_id = '12345'    
+            unique_id = request.opt.uri_path[0]    
     
         print ("The unique id is: " + unique_id)
         current_time = str(datetime.datetime.utcnow())
@@ -83,10 +83,9 @@ class humidity_sensor(resource.PathCapable):
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
             print ("cbor:", cbor.loads(request.payload))
-            measurements = cbor.loads(request.payload)
-            
+            measurements = cbor.loads(request.payload)       
             #if not found, add the device details in the device table in MongoDB 
-            device = client.green_wall.devices.find_one({"name": device_name})
+            device = client.green_wall.devices.find_one({"unique_id": unique_id})
             if device:
                 newvalues = { "$set": { "last_updated_at": current_time, "unique_id": unique_id } }
                 client.green_wall.devices.update_one({"name": device_name}, newvalues)
@@ -108,7 +107,8 @@ class humidity_sensor(resource.PathCapable):
                     client.green_wall.sensors.insert_one(sensor_data)
                     sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
                 #add the measurement for the sensor
-                measurement_data = { "sensor_id": sensor['_id'], "type": "humidity", "value": m, "recorded_at": current_time}
+                relative_humidity = (m * 100 / 4096)
+                measurement_data = { "sensor_id": sensor['_id'], "type": "humidity", "value": relative_humidity, "recorded_at": current_time}
                 client.green_wall.measurements.insert_one(measurement_data)
                 sensor_pin_counter += 1
             # store the measurements for raw data collection
