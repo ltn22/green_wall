@@ -18,36 +18,36 @@ while True:
     dev_eui = j[1]
     print ("the humidity data: ", j[2:])
     #if not found, add the device details in the device table in MongoDB 
-            device = client.green_wall.devices.find_one({"dev_eui": dev_eui})
-            if device:
-                newvalues = { "$set": { "last_updated_at": current_time, "name": device_name } }
-                client.green_wall.devices.update_one({"dev_eui": dev_eui}, newvalues)
-            else:    
-                device_data = { "dev_eui": dev_eui, "last_updated_at": current_time, "name": device_name}
-                client.green_wall.devices.insert_one(device_data)
-                device = client.green_wall.devices.find_one({"dev_eui": dev_eui})
-            
-            sensor_pin_counter = 13
-            # store the measurements with relation to device and sensors
-            for m in measurements:
-                sensor_name = device['name'] + "P"+ str(sensor_pin_counter)
-                sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
-                if sensor:
-                    newvalues = { "$set": { "last_updated_at": current_time} }
-                    client.green_wall.sensors.update_one({"_id": sensor['_id']}, newvalues)    
-                else:    
-                    sensor_data = { "name":sensor_name, "type":"humidity", "device_id": device['_id'],"pos_X":-1, "pos_Y":-1, "last_updated_at": current_time}
-                    client.green_wall.sensors.insert_one(sensor_data)
-                    sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
-                #add the measurement for the sensor
-                relative_humidity = (m * 100 / 4096)
-                measurement_data = { "sensor_id": sensor['_id'], "type": "humidity", "value": relative_humidity, "recorded_at": current_time}
-                client.green_wall.measurements.insert_one(measurement_data)
-                sensor_pin_counter += 1
-            # store the measurements for raw data collection
-            device_data = { "device_id": device['_id'],
-                        "measures": measurements,
-                        "recorded_at" :  datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()}
-            client.green_wall.devicemeasures.insert_one(device_data)   
+    device = client.green_wall.devices.find_one({"dev_eui": dev_eui})
+    if device:
+        newvalues = { "$set": { "last_updated_at": current_time, "name": device_name } }
+        client.green_wall.devices.update_one({"dev_eui": dev_eui}, newvalues)
+    else:    
+        device_data = { "dev_eui": dev_eui, "last_updated_at": current_time, "name": device_name}
+        client.green_wall.devices.insert_one(device_data)
+        device = client.green_wall.devices.find_one({"dev_eui": dev_eui})
+    
+    sensor_pin_counter = 13
+    # store the measurements with relation to device and sensors
+    for m in measurements:
+        sensor_name = device['name'] + "P"+ str(sensor_pin_counter)
+        sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
+        if sensor:
+            newvalues = { "$set": { "last_updated_at": current_time} }
+            client.green_wall.sensors.update_one({"_id": sensor['_id']}, newvalues)    
+        else:    
+            sensor_data = { "name":sensor_name, "type":"humidity", "device_id": device['_id'],"pos_X":-1, "pos_Y":-1, "last_updated_at": current_time}
+            client.green_wall.sensors.insert_one(sensor_data)
+            sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
+        #add the measurement for the sensor
+        relative_humidity = (m * 100 / 4096)
+        measurement_data = { "sensor_id": sensor['_id'], "type": "humidity", "value": relative_humidity, "recorded_at": current_time}
+        client.green_wall.measurements.insert_one(measurement_data)
+        sensor_pin_counter += 1
+    # store the measurements for raw data collection
+    device_data = { "device_id": device['_id'],
+                "measures": measurements,
+                "recorded_at" :  datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()}
+    client.green_wall.devicemeasures.insert_one(device_data)   
 
     s.sendto("Thanks for sending humidity measurements Pycom !".encode(), addr)
