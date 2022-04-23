@@ -2,6 +2,7 @@ import socket
 import binascii
 import cbor2 as cbor
 from pymongo import MongoClient
+import time
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind(('0.0.0.0', 35584)) # 33033 + 2551 as the defined port on pycom device
@@ -17,6 +18,7 @@ while True:
     device_name = j[0]
     dev_eui = j[1]
     print ("the humidity data: ", j[2:])
+    current_time = str(datetime.datetime.utcnow())
     #if not found, add the device details in the device table in MongoDB 
     device = client.green_wall.devices.find_one({"dev_eui": dev_eui})
     if device:
