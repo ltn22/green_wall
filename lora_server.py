@@ -14,8 +14,8 @@ while True:
     # just skip the first element becauuse this is SCHC data
     j = cbor.loads(data[1:])
     
-    device_name = j[0])
-    dev_eui = j[1])
+    device_name = j[0]
+    dev_eui = j[1]
     print ("the humidity data: ", j[2:])
     #if not found, add the device details in the device table in MongoDB 
             device = client.green_wall.devices.find_one({"dev_eui": dev_eui})
