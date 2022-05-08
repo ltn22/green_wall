@@ -121,7 +121,7 @@ class humidity_sensor(resource.PathCapable):
             beebotte_data = []
             for dm in device_measures:
                 beebotte_data.append(dm['measures'][0])
-         
+            print ("Looking for channel name: ", device['name'])
             to_bbt(device['name'], 'humidity', measurements, period=200, factor=0.0244) 
 
         else:

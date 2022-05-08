@@ -71,10 +71,13 @@ try:
         pycom.heartbeat(False) # turn led to white
         pycom.rgbled(0x101010) # white
 
+        connection_counter = 0
+        lora_connected = false
         # wait until the module has joined the network
-        while not lora.has_joined():
+        while not lora.has_joined() and connection_counter <= 30:
             time.sleep(2.5)
             print('Not yet joined...')
+            connection_counter+=1
 
         pycom.rgbled(0x000000) # black
 
@@ -170,7 +173,7 @@ while True:
     try:
         while wlan.isconnected():
             pycom.heartbeat(True) # turn led to heartbeat
-            if (lora_counter % 2 == 0):
+            if (lora_counter % 2 == 0) and lora.has_joined():
                  m = [DEVICE_NAME,dev_eui, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
                  send_coap_message (s_lora, "LORAWAN", "humidity", m, dev_eui)
                  print("SUCCESS LORA")
