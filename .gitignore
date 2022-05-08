@@ -4,3 +4,4 @@ msc_project/PycomFiles/.DS_Store
 __pycache__/
 admin_webapp/env/
 nohup.out
+.vscode

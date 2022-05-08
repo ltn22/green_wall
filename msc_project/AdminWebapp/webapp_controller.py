@@ -1,3 +1,4 @@
+from distutils.log import debug
 from flask import Flask, render_template,url_for, redirect, jsonify, request, session
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField
@@ -182,7 +183,7 @@ def heatmap():
 
 
 if __name__=='__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
 
 
 
