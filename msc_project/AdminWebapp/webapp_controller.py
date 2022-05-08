@@ -172,7 +172,7 @@ def deletesensor(id):
 
 @app.route('/heatmap')
 def heatmap():
-    device_list = list(mongo.green_wall.devices.find({'device_name':['LP1','LP2']}))
+    device_list = list(mongo.green_wall.devices.find({"device_name":{"$in":["LP1","LP2"]}}))
     sensor_list = list(mongo.green_wall.sensors.find({"device_id":{"$in":[ObjectId(device_list[0]['device_id']),ObjectId(device_list[1]['device_id'])]}}).sort({"pos_Y":-1,"pos_X":1}))
     for s in sensor_list:
         #sensor_last_updated_at = datetime.datetime.strptime(s['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
