@@ -127,8 +127,7 @@ def sensors(device_id):
         else:
             s['status'] = 'Active'
         last_recorded_value = list(mongo.green_wall.measurements.find({"sensor_id":s['_id']}).sort([('recorded_at', -1)]).limit(1))[0]  
-        lrv = (last_recorded_value['value'] * 100)/4096 
-        s['last_value'] = round(lrv,2)
+        s['last_value'] = round(last_recorded_value['value'],2)
     return render_template("sensors_result.html",sensor_list=sensor_list, device_name = device_name['name'])
 
 
