@@ -72,7 +72,7 @@ try:
         pycom.rgbled(0x101010) # white
 
         connection_counter = 0
-        lora_connected = false
+
         # wait until the module has joined the network
         while not lora.has_joined() and connection_counter <= 30:
             time.sleep(2.5)
@@ -171,13 +171,15 @@ lora_counter = 0
 
 while True:
     try:
-        while wlan.isconnected():
-            pycom.heartbeat(True) # turn led to heartbeat
-            if (lora_counter % 2 == 0) and lora.has_joined():
-                 m = [DEVICE_NAME,dev_eui, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
-                 send_coap_message (s_lora, "LORAWAN", "humidity", m, dev_eui)
-                 print("SUCCESS LORA")
-            else:
+        pycom.heartbeat(True) # turn led to heartbeat
+        if (lora_counter % 2 == 0) and lora.has_joined():
+             print("Here is LORA section")
+             m = [DEVICE_NAME,dev_eui, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+             send_coap_message (s_lora, "LORAWAN", "humidity", m, dev_eui)
+             print("SUCCESS LORA")
+        else:
+            if wlan.isconnected():
+                print("Here is WiFi connected section")
                 #send the mac address of the device as an indentifier
                 mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
                 print("The mac address is: " + mac_address)
@@ -187,19 +189,19 @@ while True:
                 #send_coap_message (s, destination, "moisture", m)
                 send_coap_message (s_wifi, destination2, "humidity", m, mac_address)
                 print("SUCCESS WiFi")
-            time.sleep(60) # wait for 3 minutes 20 seconds
-            lora_counter += 1
-
-        while not wlan.isconnected():
-            pycom.heartbeat(False) # turn led to white
-            print ("WiFi disconnected")
-            wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-            #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
-            wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
-            time.sleep(1)
-            pycom.rgbled(0x7f0000) # red
-            time.sleep(1)
-            pycom.rgbled(0x000000) # turn off led
+                time.sleep(60) # wait for 3 minutes 20 seconds
+            else:
+                print("Here is WiFi not connected section")
+                pycom.heartbeat(False) # turn led to white
+                print ("WiFi disconnected")
+                wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
+                #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
+                wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+                time.sleep(1)
+                pycom.rgbled(0x7f0000) # red
+                time.sleep(1)
+                pycom.rgbled(0x000000) # turn off led
+        lora_counter+=1
 
     except OSError as err:
         time.sleep(30)
