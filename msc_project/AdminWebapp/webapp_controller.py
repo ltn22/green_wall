@@ -166,6 +166,21 @@ def deletesensor(id):
     return redirect(url_for('sensors',device_id=device['_id']))
 
 
+#===================================
+# Method to show a Heatmap of Wall
+#===================================
+
+@app.route('/heatmap')
+def heatmap():
+    device_list = list(mongo.green_wall.devices.find({'device_name':['LP1','LP2']}))
+    sensor_list = list(mongo.green_wall.sensors.find({"device_id":{"$in":[ObjectId(device_list[0]['device_id']),ObjectId(device_list[1]['device_id'])]}}).sort({"pos_Y":-1,"pos_X":1}))
+    for s in sensor_list:
+        #sensor_last_updated_at = datetime.datetime.strptime(s['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
+        last_recorded_value = list(mongo.green_wall.measurements.find({"sensor_id":s['_id']}).sort([('recorded_at', -1)]).limit(1))[0]  
+        s['last_value'] = round(last_recorded_value['value'],2)		
+    return render_template("wall_heatmap.html",sensor_list=sensor_list, sensor_count = len(sensor_list))
+
+
 if __name__=='__main__':
     app.run(host='0.0.0.0')
 

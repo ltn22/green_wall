@@ -1,0 +1,39 @@
+{% extends 'sensors_home.html' %}
+
+{% block result %}
+</br>
+</br>
+	<div class="container" id="test">
+        <h2>Green Wall Status</h2>
+        </br>
+        <table class="table table-hover">
+        
+            <tbody id="body">
+           
+                {% for s in sensor_list[0:3]%}
+                <tr>
+                    <td>{{ s["name"] }} || {{ s["last_value"] }}</td>
+                </tr>
+                {% endfor}
+                {% for s in sensor_list[4:7]%}
+                <tr>
+                    <td>{{ s["name"] }} || {{ s["last_value"] }}</td>
+                </tr>
+                {% endfor}
+                {% for s in sensor_list[8:11]%}
+                <tr>
+                    <td>{{ s["name"] }} || {{ s["last_value"] }}</td>
+                </tr>
+                {% endfor}
+                {% for s in sensor_list[12:15]%}
+                <tr>
+                    <td>{{ s["name"] }} || {{ s["last_value"] }}</td>
+                </tr>
+                {% endfor}
+
+                   
+            </tbody>
+        </table>
+    </div>
+
+{%endblock%}
