@@ -1,3 +1,4 @@
+from curses import mouseinterval
 from distutils.log import debug
 from flask import Flask, render_template,url_for, redirect, jsonify, request, session
 from flask_wtf import FlaskForm
@@ -178,9 +179,21 @@ def heatmap():
     for s in sensor_list:
         #sensor_last_updated_at = datetime.datetime.strptime(s['last_updated_at'], '%Y-%m-%d %H:%M:%S.%f')
         last_recorded_value = list(mongo.green_wall.measurements.find({"sensor_id":s['_id']}).sort([('recorded_at', -1)]).limit(1))[0]  
-        s['last_value'] = round(last_recorded_value['value'],2)		
+        s['last_value'] = round(last_recorded_value['value'],2)	
+        s['humidity_level'] = getHumidityLevel(s['last_value'])	
     return render_template("wall_heatmap.html",sensor_list=sensor_list, sensor_count = len(sensor_list))
 
+def getHumidityLevel(humidity):
+    humidity_level = ''
+    if humidity > 75.0:
+        humidity_level = "moist"
+    elif humidity > 50.0:
+        humidity_level = "normal"
+    elif humidity > 25.0:
+        humidity_level = "dry"
+    else:
+        humidity_level = "severe"
+    return humidity_level            
 
 if __name__=='__main__':
     app.run(host='0.0.0.0', debug=True)

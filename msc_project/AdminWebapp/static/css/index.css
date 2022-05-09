@@ -5,3 +5,18 @@
 	width: 100%;
 }
 
+.severe{
+   background-color: maroon;
+}
+
+.dry{
+	background-color: burlywood;
+}
+
+.normal{
+   background-color: greenyellow;
+}
+
+.moist{
+	background-color: lightblue;
+}

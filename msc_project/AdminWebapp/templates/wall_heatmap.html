@@ -1,4 +1,4 @@
-{% extends 'sensors_home.html' %}
+{% extends 'devices_home.html' %}
 
 {% block result %}
 </br>
@@ -12,28 +12,28 @@
                 <tr>
                 {% for s in sensor_list[0:4] %}
                
-                    <td>{{ s["name"] }} || {{ s["last_value"] }}</td>
+                    <td class="{ s['humidity_level'] }}">{{ s["name"] }} || {{ s["last_value"] }}</td>
              
                 {% endfor %}
             </tr>
             <tr>
                 {% for s in sensor_list[4:8] %}
                
-                    <td>{{ s["name"] }} || {{ s["last_value"] }}</td>
+                    <td class="{ s['humidity_level'] }}">{{ s["name"] }} || {{ s["last_value"] }}</td>
             
                 {% endfor %}
             </tr>
             <tr>
                 {% for s in sensor_list[8:12] %}
               
-                    <td>{{ s["name"] }} || {{ s["last_value"] }}</td>
+                    <td class="{ s['humidity_level'] }}">{{ s["name"] }} || {{ s["last_value"] }}</td>
              
                 {% endfor %}
             </tr>
             <tr>
                 {% for s in sensor_list[12:16] %}
             
-                    <td>{{ s["name"] }} || {{ s["last_value"] }}</td>
+                    <td class="{ s['humidity_level'] }}">{{ s["name"] }} || {{ s["last_value"] }}</td>
              
                 {% endfor %}
             </tr>
