@@ -7,27 +7,33 @@
 
 .severe{
    background-color: darkred;
-   padding: 3.5rem;
- 
+   padding: 3.5rem; 
+   border: gray 1px solid;
 }
 
 .dry{
 	background-color: darkgoldenrod;
 	padding: 3.5rem;
+	border: gray 1px solid;
 }
 
 .normal{
    background-color: green;
    padding: 3.5rem;
+   border: gray 1px solid;
 }
 
 .moist{
 	background-color: lightskyblue;
 	padding: 3.5rem;
+	border: gray 1px solid;
 }
 
 .wall-table{
     padding: 1.5rem 1.5rem;
 	text-align: center;
 	color: white;
+	font-size: 0.75rem;
+	margin-left: auto;
+	margin-right: auto;
 }

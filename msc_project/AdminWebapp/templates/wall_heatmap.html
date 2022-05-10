@@ -1,10 +1,10 @@
-{% extends 'devices_home.html' %}
+{% extends 'index.html' %}
 
 {% block result %}
 </br>
 </br>
 
-	<div class="container" id="test">
+	<div class="container text-center" id="test">
         <h2>Green Wall Status</h2>
         </br>
         <table class="wall-table">
@@ -13,28 +13,28 @@
                 <tr>
                 {% for s in sensor_list[0:4] %}
                
-                    <td class="{{ s['humidity_level'] }}">{{ s["name"] }} || {{ s["last_value"] }}</td>
+                    <td class="{{ s['humidity_level'] }}">{{ s["name"] }} </td>
              
                 {% endfor %}
             </tr>
             <tr>
                 {% for s in sensor_list[4:8] %}
                
-                    <td class="{{ s['humidity_level'] }}">{{ s["name"] }} || {{ s["last_value"] }}</td>
+                    <td class="{{ s['humidity_level'] }}">{{ s["name"] }} </td>
             
                 {% endfor %}
             </tr>
             <tr>
                 {% for s in sensor_list[8:12] %}
               
-                    <td class="{{ s['humidity_level'] }}">{{ s["name"] }} || {{ s["last_value"] }}</td>
+                    <td class="{{ s['humidity_level'] }}">{{ s["name"] }} </td>
              
                 {% endfor %}
             </tr>
             <tr>
                 {% for s in sensor_list[12:16] %}
             
-                    <td class="{{ s['humidity_level'] }}">{{ s["name"] }} || {{ s["last_value"] }}</td>
+                    <td class="{{ s['humidity_level'] }}">{{ s["name"] }}</td>
              
                 {% endfor %}
             </tr>
