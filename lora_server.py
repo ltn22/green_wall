@@ -27,9 +27,14 @@ while True:
         newvalues = { "$set": { "last_updated_at": current_time, "name": device_name } }
         client.green_wall.devices.update_one({"dev_eui": dev_eui}, newvalues)
     else:    
-        device_data = { "dev_eui": dev_eui, "last_updated_at": current_time, "name": device_name}
-        client.green_wall.devices.insert_one(device_data)
-        device = client.green_wall.devices.find_one({"dev_eui": dev_eui})
+        device = client.green_wall.devices.find_one({"name": device_name})
+        if device:
+            newvalues = { "$set": { "last_updated_at": current_time, "dev_eui": dev_eui } }
+            client.green_wall.devices.update_one({"name": device_name}, newvalues)
+        else:    
+            device_data = { "dev_eui": dev_eui, "last_updated_at": current_time, "name": device_name}
+            client.green_wall.devices.insert_one(device_data)
+            device = client.green_wall.devices.find_one({"dev_eui": dev_eui})
     
     sensor_pin_counter = 13
     # store the measurements with relation to device and sensors

@@ -85,7 +85,6 @@ try:
         s_lora.setsockopt(socket.SOL_LORA, socket.SO_DR, 5)
         s_lora.setsockopt(socket.SOL_LORA,  socket.SO_CONFIRMED,  False)
 
-        print("Established LoRA socket")
         MTU = 200 # Maximun Transmission Unit, for DR 0 should be set to less than 50
 
     # WIFI with IP address
@@ -172,11 +171,15 @@ lora_counter = 0
 while True:
     try:
         pycom.heartbeat(True) # turn led to heartbeat
-        if (lora_counter % 2 == 0) and lora.has_joined():
-             print("Here is LORA section")
-             m = [DEVICE_NAME,dev_eui, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
-             send_coap_message (s_lora, "LORAWAN", "humidity", m, dev_eui)
-             print("SUCCESS LORA")
+        if (lora_counter % 2 == 0):
+             if not lora.has_joined():
+                 print("Trying to connect to LoraWAN...")
+                 lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key),  timeout=0)
+                 time.sleep(60)
+                 if lora.has_joined():
+                     m = [DEVICE_NAME,dev_eui, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+                     send_coap_message (s_lora, "LORAWAN", "humidity", m, dev_eui)
+                     print("Successful LoraWAN request sent.")
         else:
             if wlan.isconnected():
                 print("Here is WiFi connected section")
