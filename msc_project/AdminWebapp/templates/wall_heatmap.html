@@ -2,11 +2,10 @@
 
 {% block result %}
 </br>
-</br>
+
 
 	<div class="container text-center" id="test">
-        <h2>Green Wall Status</h2>
-        </br>
+    
         <table class="wall-table">
         
             <tbody id="body">
@@ -41,6 +40,15 @@
                    
             </tbody>
         </table>
+
+    </br>
+    <div>
+        <span>Humidity Levels</span>
+        <span class="badge bg-info text-dark"> &gt;75%</span>
+        <span class="badge bg-success">50 - 75 %</span>
+        <span class="badge bg-warning text-dark">25 - 50 %</span>
+        <span class="badge bg-danger"> &lt; 25%</span>
+    </div>
     </div>
 
 {%endblock%}
