@@ -6,19 +6,19 @@
 }
 
 .severe{
-   background-color: darkred;
+   background-color: #dc3545;
    padding: 3.5rem; 
    border: gray 1px solid;
 }
 
 .dry{
-	background-color: darkgoldenrod;
+	background-color: #ffc107;
 	padding: 3.5rem;
 	border: gray 1px solid;
 }
 
 .normal{
-   background-color: green;
+   background-color:#198754;
    padding: 3.5rem;
    border: gray 1px solid;
 }
