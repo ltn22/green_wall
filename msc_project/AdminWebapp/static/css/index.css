@@ -20,3 +20,7 @@
 .moist{
 	background-color: lightblue;
 }
+
+.wall-table td{
+    padding: 1.5rem 1.5rem;
+}
