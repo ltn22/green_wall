@@ -90,10 +90,15 @@ class humidity_sensor(resource.PathCapable):
             if device:
                 newvalues = { "$set": { "last_updated_at": current_time } }
                 client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
-            else:    
-                device_data = { "unique_id": unique_id, "last_updated_at": current_time, "name": device_name}
-                client.green_wall.devices.insert_one(device_data)
-                device = client.green_wall.devices.find_one({"unique_id": unique_id})
+            else: 
+                device = client.green_wall.devices.find_one({"name": device_name})
+                if device:
+                    newvalues = { "$set": { "last_updated_at": current_time, "unique_id": unique_id } }
+                    client.green_wall.devices.update_one({"name": device_name}, newvalues)   
+                else:    
+                    device_data = { "unique_id": unique_id, "last_updated_at": current_time, "name": device_name}
+                    client.green_wall.devices.insert_one(device_data)
+                    device = client.green_wall.devices.find_one({"unique_id": unique_id})
             
             sensor_pin_counter = 13
             # store the measurements with relation to device and sensors

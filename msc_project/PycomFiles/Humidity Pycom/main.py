@@ -40,7 +40,6 @@ import pycom
 import os
 import machine
 
-
 upython = (sys.implementation.name == "micropython")
 print (upython, sys.implementation.name)
 if upython:
@@ -54,7 +53,6 @@ else:
 
 try:
     #----- CONNECT TO THE APPROPRIATE NETWORK(S) --------
-
     if SERVER2 == "LORAWAN":
         from network import LoRa
 
@@ -90,7 +88,6 @@ try:
     # WIFI with IP address
     s_wifi = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     MTU = 200 # maximum packet size, could be higher
-
     # -----------------  SENSORS -----------------------
     from machine import ADC
     adc=ADC()
@@ -104,16 +101,13 @@ try:
     apin14 = adc.channel(pin="P14",attn=ADC.ATTN_11DB)
     apin13 = adc.channel(pin="P13",attn=ADC.ATTN_11DB)
 
-
     # ------------- SENDING DATA ------------------------
 
     REPORT_PERIOD = 60 # send a frame every 60 sample (1 hour)
-
     # Offset are used to desynchronize sendings, and the value is != form 0
     # at the first round, after the first sending offset is set to 0, but since
     # buffers have different filling level, the desynchronization is kept. In the
     # default configuration, one message is sent every 15 minutes.
-
     lorawan_MID = 1 # when SCHC is used for Sigfox
     def send_coap_message(sock, destination, uri_path, message, unique_id = None):
         if destination == "LORAWAN": # do SCHC compression
@@ -124,7 +118,6 @@ try:
             # """
             uri_idx = ['humidity', None, None, None, None, None].index(uri_path)
             schc_residue = (lorawan_MID << 4) | uri_idx # MMMM and UU
-
             lorawan_MID += 1
             lorawan_MID &= 0x0F # on 4 bits
             if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
@@ -149,7 +142,6 @@ try:
             coap.add_payload(cbor.dumps(message))
             coap.dump(hexa=True)
             answer = CoAP.send_ack(sock, destination, coap)
-
             return answer
 
     if destination == "LORAWAN":
@@ -171,15 +163,16 @@ lora_counter = 0
 while True:
     try:
         pycom.heartbeat(True) # turn led to heartbeat
-        if (lora_counter % 2 == 0):
-             if not lora.has_joined():
-                 print("Trying to connect to LoraWAN...")
-                 lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key),  timeout=0)
-                 time.sleep(60)
-                 if lora.has_joined():
-                     m = [DEVICE_NAME,dev_eui, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
-                     send_coap_message (s_lora, "LORAWAN", "humidity", m, dev_eui)
-                     print("Successful LoraWAN request sent.")
+        if(lora_counter % 2 == 0):
+            if not lora.has_joined():
+                print("Trying to connect to LoRAWAN")
+                lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key),  timeout=0)
+                time.sleep(30)
+            else:
+                print("In LORA section")
+                m = [DEVICE_NAME,dev_eui, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+                send_coap_message (s_lora, "LORAWAN", "humidity", m, dev_eui)
+                print("Successful LoraWAN request sent.")
         else:
             if wlan.isconnected():
                 print("Here is WiFi connected section")
@@ -192,10 +185,10 @@ while True:
                 #send_coap_message (s, destination, "moisture", m)
                 send_coap_message (s_wifi, destination2, "humidity", m, mac_address)
                 print("SUCCESS WiFi")
-                time.sleep(60) # wait for 3 minutes 20 seconds
+                time.sleep(10) # wait for 3 minutes 20 seconds
             else:
                 print("Here is WiFi not connected section")
-                pycom.heartbeat(False) # turn led to white
+                pycom.heartbeat(False) # tu¸rn led to white
                 print ("WiFi disconnected")
                 wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
                 #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
