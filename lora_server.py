@@ -14,12 +14,11 @@ client = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
 while True:
     data, addr = s.recvfrom(1500)
     # just skip the first element becauuse that is SCHC data
-    j = cbor.loads(data[1:])
-    
+    j = cbor.loads(data[1:]) 
     device_name = j[0]
-    dev_eui = j[1]
-    print(dev_eui)
-    print("devEUI:",binascii.unhexlify(dev_eui))
+    print("Device Name:",device_name)
+    dev_eui = j[1].decode('utf-8')
+    print("devEUI:",dev_eui)
     measurements = j[2:]
     print ("the humidity data: ", measurements )
     current_time = str(datetime.datetime.utcnow())
