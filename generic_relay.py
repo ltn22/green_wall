@@ -34,7 +34,7 @@ def forward_data(payload):
 
     if verbose:
         print ("--UP->", binascii.hexlify(payload))
-    sock.sendto(payload, ("127.0.0.1", 35584)) #3303 + 2551 as def port
+    sock.sendto(payload, ("127.0.0.1", 35584)) #33033 + 2551 as def port
 
     readable, writable, exceptional = select.select(inputs, outputs, inputs, 0.1)
 
