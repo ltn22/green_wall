@@ -86,19 +86,19 @@ class humidity_sensor(resource.PathCapable):
             print ("cbor:", cbor.loads(request.payload))
             measurements = cbor.loads(request.payload)       
             #if not found, add the device details in the device table in MongoDB 
-            device = client.green_wall.devices.find_one({"unique_id": unique_id})
+            device = client.green_wall.devices.find_one({"mac_address": unique_id})
             if device:
                 newvalues = { "$set": { "last_updated_at": current_time } }
-                client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
+                client.green_wall.devices.update_one({"mac_address": unique_id}, newvalues)
             else: 
                 device = client.green_wall.devices.find_one({"name": device_name})
                 if device:
-                    newvalues = { "$set": { "last_updated_at": current_time, "unique_id": unique_id } }
+                    newvalues = { "$set": { "last_updated_at": current_time, "mac_address": unique_id } }
                     client.green_wall.devices.update_one({"name": device_name}, newvalues)   
                 else:    
-                    device_data = { "unique_id": unique_id, "last_updated_at": current_time, "name": device_name}
+                    device_data = { "mac_address": unique_id, "last_updated_at": current_time, "name": device_name}
                     client.green_wall.devices.insert_one(device_data)
-                    device = client.green_wall.devices.find_one({"unique_id": unique_id})
+                    device = client.green_wall.devices.find_one({"mac_address": unique_id})
             
             sensor_pin_counter = 13
             # store the measurements with relation to device and sensors
@@ -162,12 +162,12 @@ class watering_info(resource.Resource):
             device_name = request_data[1]
             #if not found, add the actuator device details in the device table in MongoDB 
             unique_id = request_data[0]
-            actuator_device = client.green_wall.devices.find_one({"unique_id": unique_id})
+            actuator_device = client.green_wall.devices.find_one({"mac_address": unique_id})
             if actuator_device:
                 newvalues = { "$set": { "last_updated_at": current_time } }
-                client.green_wall.devices.update_one({"unique_id": unique_id}, newvalues)
+                client.green_wall.devices.update_one({"mac_address": unique_id}, newvalues)
             else:    
-                actuator_device_data = { "unique_id": unique_id, "last_updated_at": current_time, "name": "NA"}
+                actuator_device_data = { "mac_address": unique_id, "last_updated_at": current_time, "name": "NA"}
                 client.green_wall.devices.insert_one(actuator_device_data)
  
         ic = 0
