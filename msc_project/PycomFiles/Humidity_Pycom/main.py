@@ -39,6 +39,7 @@ import network
 import pycom
 import os
 import machine
+from operator import add
 
 upython = (sys.implementation.name == "micropython")
 print (upython, sys.implementation.name)
@@ -101,6 +102,77 @@ try:
     apin14 = adc.channel(pin="P14",attn=ADC.ATTN_11DB)
     apin13 = adc.channel(pin="P13",attn=ADC.ATTN_11DB)
 
+
+    if destination == "LORAWAN":
+        coap_header_size = 1 # SCHC header size
+    else:
+        coap_header_size = 25 #  coap header size approximated
+
+    print ("MTU size is", MTU, "Payload size is", MTU-coap_header_size, "samples ", REPORT_PERIOD)
+    wlan = network.WLAN(mode=network.WLAN.STA)
+
+except OSError as err:
+    time.sleep(30)
+    print("an error ocurred")
+    print("OS error: {0}".format(err))
+    machine.reset()
+
+lora_counter = 0
+historic_measures = [0,0,0,0,0,0,0,0]
+
+while True:
+    try:
+        pycom.heartbeat(True) # turn led to heartbeat
+        if(lora_counter % 3 == 0):
+            if not lora.has_joined():
+                print("Trying to connect to LoRAWAN")
+                lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key),  timeout=0)
+                time.sleep(30)
+            else:
+                print("In LORA section")
+                print("historic_measures: ", historic_measures)
+                measures = historic_measures // 2
+                print("Avg measures:", measures)
+                measures.insert(0, dev_eui)
+                measures.insert(0, DEVICE_NAME)
+                print("Final measures:", measures)
+                send_coap_message (s_lora, "LORAWAN", "humidity", m, dev_eui)
+                historic_measures =[0,0,0,0,0,0,0,0]
+                print("Successful LoraWAN request sent.")
+        else:
+            if wlan.isconnected():
+                print("Here is WiFi connected section")
+                #send the mac address of the device as an indentifier
+                mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
+                print("The mac address is: " + mac_address)
+                print("The device IP adress is: " + ipaddr)
+                current_measures = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
+                print(m)
+                #send_coap_message (s, destination, "moisture", m)
+                send_coap_message (s_wifi, destination2, "humidity", current_measures, mac_address)
+                print("SUCCESS WiFi")
+                #np.add(historic_measures,current_measures)
+                print("Current historic_measures: ", historic_measures)
+                time.sleep(10) # wait for 3 minutes 20 seconds
+            else:
+                print("Here is WiFi not connected section")
+                pycom.heartbeat(False) # tu¸rn led to white
+                print ("WiFi disconnected")
+                wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
+                #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
+                wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+                time.sleep(1)
+                pycom.rgbled(0x7f0000) # red
+                time.sleep(1)
+                pycom.rgbled(0x000000) # turn off led
+        lora_counter+=1
+
+    except OSError as err:
+        time.sleep(30)
+        print("an error ocurred")
+        print("OS error: {0}".format(err))
+        machine.reset()
+
     # ------------- SENDING DATA ------------------------
 
     REPORT_PERIOD = 60 # send a frame every 60 sample (1 hour)
@@ -144,63 +216,4 @@ try:
             answer = CoAP.send_ack(sock, destination, coap)
             return answer
 
-    if destination == "LORAWAN":
-        coap_header_size = 1 # SCHC header size
-    else:
-        coap_header_size = 25 #  coap header size approximated
-
-    print ("MTU size is", MTU, "Payload size is", MTU-coap_header_size, "samples ", REPORT_PERIOD)
-    wlan = network.WLAN(mode=network.WLAN.STA)
-
-except OSError as err:
-    time.sleep(30)
-    print("an error ocurred")
-    print("OS error: {0}".format(err))
-    machine.reset()
-
-lora_counter = 0
-
-while True:
-    try:
-        pycom.heartbeat(True) # turn led to heartbeat
-        if(lora_counter % 2 == 0):
-            if not lora.has_joined():
-                print("Trying to connect to LoRAWAN")
-                lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key),  timeout=0)
-                time.sleep(30)
-            else:
-                print("In LORA section")
-                m = [DEVICE_NAME,dev_eui, apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
-                send_coap_message (s_lora, "LORAWAN", "humidity", m, dev_eui)
-                print("Successful LoraWAN request sent.")
-        else:
-            if wlan.isconnected():
-                print("Here is WiFi connected section")
-                #send the mac address of the device as an indentifier
-                mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
-                print("The mac address is: " + mac_address)
-                print("The device IP adress is: " + ipaddr)
-                m = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
-                print(m)
-                #send_coap_message (s, destination, "moisture", m)
-                send_coap_message (s_wifi, destination2, "humidity", m, mac_address)
-                print("SUCCESS WiFi")
-                time.sleep(10) # wait for 3 minutes 20 seconds
-            else:
-                print("Here is WiFi not connected section")
-                pycom.heartbeat(False) # tu¸rn led to white
-                print ("WiFi disconnected")
-                wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-                #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
-                wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
-                time.sleep(1)
-                pycom.rgbled(0x7f0000) # red
-                time.sleep(1)
-                pycom.rgbled(0x000000) # turn off led
-        lora_counter+=1
-
-    except OSError as err:
-        time.sleep(30)
-        print("an error ocurred")
-        print("OS error: {0}".format(err))
-        machine.reset()
+    def addLists(list1, list2):
