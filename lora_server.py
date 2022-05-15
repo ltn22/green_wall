@@ -50,7 +50,7 @@ while True:
             client.green_wall.sensors.insert_one(sensor_data)
             sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
         #add the measurement for the sensor
-        relative_humidity = (m * 100 / 4096)
+        relative_humidity = round((m * 100 / 4096),2)
         measurement_data = { "sensor_id": sensor['_id'], "type": "humidity", "value": relative_humidity, "recorded_at": current_time}
         client.green_wall.measurements.insert_one(measurement_data)
         sensor_pin_counter += 1
