@@ -198,11 +198,11 @@ def sensor_report():
         csv_output.writerow(field_names)
 
         for data in sensor_list:
-            csv_output.writerow(
+            csv_output.writerow([
                 data['_id'],
                 data['name'],
                 data['type'],
-                data['last_updated_at'])
+                data['last_updated_at']])
     return "<h3> sensor_data.csv successfully created </h3>"            
 
 def getHumidityLevel(humidity):
