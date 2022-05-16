@@ -1,6 +1,6 @@
 from curses import mouseinterval
 from distutils.log import debug
-from flask import Flask, render_template,url_for, redirect, jsonify, request, session
+from flask import Flask, render_template,url_for, redirect, jsonify, request, session, send_file
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField
 from wtforms.validators import InputRequired
@@ -191,10 +191,9 @@ def heatmap():
 @app.route('/sensor_report')
 def sensor_report():
     sensor_list = list(mongo.green_wall.sensors.find({}))
-    field_names = ['_id','name','type','last_updated_at']
-
+    field_names = ['_id','name','type','pos_X','pos_Y','last_updated_at']
     with open('sensor_data.csv', 'w', newline='') as f_output:
-        csv_output = csv.writer(f_output, delimiter="|")
+        csv_output = csv.writer(f_output, delimiter=",")
         csv_output.writerow(field_names)
 
         for data in sensor_list:
@@ -202,8 +201,10 @@ def sensor_report():
                 data['_id'],
                 data['name'],
                 data['type'],
+                data['pos_X'],
+                data['pos_Y'],
                 data['last_updated_at']])
-    return "<h3> sensor_data.csv successfully created </h3>"            
+    return send_file('sensor_data.csv', as_attachment=True)            
 
 def getHumidityLevel(humidity):
     humidity_level = ''
