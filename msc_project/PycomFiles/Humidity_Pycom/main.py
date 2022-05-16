@@ -173,7 +173,7 @@ except OSError as err:
     machine.reset()
 
 lora_counter = 1
-lora_divisor = 4
+lora_divisor = 3
 historic_measures = [0] * 8
 
 while True:
@@ -196,7 +196,7 @@ while True:
                 send_coap_message (s_lora, "LORAWAN", "humidity", measures, dev_eui)
                 historic_measures = [0] * 8
                 print("Successful LoraWAN request sent.")
-                time.sleep(25)
+                time.sleep(15)
         else:
             if wlan.isconnected():
                 print("Here is WiFi connected section")
@@ -211,7 +211,7 @@ while True:
                 print("SUCCESS WiFi")
                 historic_measures = add_measures(current_measures, historic_measures)
                 print("Current historic_measures: ", historic_measures)
-                time.sleep(25) # wait for 3 minutes 20 seconds
+                time.sleep(15) # wait for 3 minutes 20 seconds
             else:
                 print("Here is WiFi not connected section")
                 pycom.heartbeat(False) # tu¸rn led to white

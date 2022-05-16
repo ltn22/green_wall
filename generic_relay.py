@@ -13,7 +13,7 @@ import socket
 import select
 import time
 import base64
-
+import struct
 import requests
 
 #from ttn_config import TTN_Downlink_Key 
@@ -137,10 +137,22 @@ def get_from_acklio():
 
     fromGW = request.get_json(force=True)
     print (fromGW)
+    ruleID = fromGW["fPort"]
+    devEUI = fromGW["devEUI"]
+    spreadingFactor = fromGW['dataRate']['spreadFactor']
+    print("The SCHC data: ruleID", ruleID )
+    print("The SCHC data: devEUI", devEUI )
+    print("The SCHC data: spreading factor", spreadingFactor )
+
     downlink = None
     if "data" in fromGW:
         payload = base64.b64decode(fromGW["data"])
         downlink = forward_data(payload)
+
+    # schc_residue = (lorawan_MID << 4) | uri_index # MMMM and UU
+    # lorawan_MID &= 0x0F # on 4 bits
+    
+    # msg = struct.pack("!B", schc_residue) # add SCHC header to the message
 
     if downlink == None:
         resp = Response(status=200)
