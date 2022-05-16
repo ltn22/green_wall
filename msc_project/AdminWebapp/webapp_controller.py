@@ -208,7 +208,7 @@ def sensor_report():
 
 @app.route('/measurement_report')
 def measurement_report():
-    measurements = list(mongo.green_wall.measurements.find({"recorded_at":{"$gt":datetime.utcnow() - timedelta(hours=1)}}))
+    measurements = list(mongo.green_wall.measurements.find({"recorded_at":{"$gt":datetime.datetime.utcnow() - timedelta(hours=1)}}))
     field_names = ['_id','sensor_id','type','value','recorded_at']
     with open('report_files/measurement_data.csv', 'w', newline='') as f_output:
         csv_output = csv.writer(f_output, delimiter=",")
