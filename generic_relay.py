@@ -140,20 +140,20 @@ def get_from_acklio():
     ruleID = fromGW["fPort"]
     devEUI = fromGW["devEUI"]
     spreadingFactor = fromGW['dataRate']['spreadFactor']
-    print("The SCHC data: ruleID", ruleID )
-    print("The SCHC data: devEUI", devEUI )
-    print("The SCHC data: spreading factor", spreadingFactor )
+
 
     downlink = None
     if "data" in fromGW:
+        msg = struct.pack("!QBB", devEUI, spreadingFactor, ruleID) # add SCHC header to the message
         payload = base64.b64decode(fromGW["data"])
-        downlink = forward_data(payload)
+        msg+=payload
+        print("The final payload: ", msg)
+        downlink = forward_data(msg)
 
     # schc_residue = (lorawan_MID << 4) | uri_index # MMMM and UU
     # lorawan_MID &= 0x0F # on 4 bits
     
-    # msg = struct.pack("!B", schc_residue) # add SCHC header to the message
-
+    
     if downlink == None:
         resp = Response(status=200)
     else:
