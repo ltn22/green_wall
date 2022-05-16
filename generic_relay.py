@@ -144,7 +144,7 @@ def get_from_acklio():
 
     downlink = None
     if "data" in fromGW:
-        msg = struct.pack("!QBB", devEUI, spreadingFactor, ruleID) # add SCHC header to the message
+        msg = struct.pack("!QBB", int(devEUI,16), spreadingFactor, ruleID) # add SCHC header to the message
         payload = base64.b64decode(fromGW["data"])
         msg+=payload
         print("The final payload: ", msg)
