@@ -9,6 +9,7 @@ import os
 from pymongo import MongoClient
 import datetime
 from datetime import timedelta
+import csv
 
 
 app= Flask(__name__)
@@ -182,6 +183,28 @@ def heatmap():
         s['last_value'] = round(last_recorded_value['value'],2)	
         s['humidity_level'] = getHumidityLevel(s['last_value'])	
     return render_template("wall_heatmap.html",sensor_list=sensor_list, sensor_count = len(sensor_list))
+
+#===================================
+# Method to generate sensor report
+#===================================
+
+@app.route('/sensor_report')
+def sensor_report():
+    sensor_list = list(mongo.green_wall.sensors.find({}))
+    field_names = ['_id','name','type','last_updated_at']
+
+    with open('sensor_data.csv', 'w', newline='') as f_output:
+        csv_output = csv.writer(f_output, delimiter="|")
+        csv_output.writerow(field_names)
+
+        for data in sensor_list:
+            csv_output.writerow(
+                data['_id'],
+                data['name'],
+                data['type'],
+                data['last_updated_at']
+                ])
+    return "<h3> sensor_data.csv successfully created </h3>"            
 
 def getHumidityLevel(humidity):
     humidity_level = ''
