@@ -202,8 +202,7 @@ def sensor_report():
                 data['_id'],
                 data['name'],
                 data['type'],
-                data['last_updated_at']
-                ])
+                data['last_updated_at'])
     return "<h3> sensor_data.csv successfully created </h3>"            
 
 def getHumidityLevel(humidity):

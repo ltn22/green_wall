@@ -5,3 +5,4 @@ __pycache__/
 admin_webapp/env/
 nohup.out
 .vscode
+msc_project/AdminWebapp/wenv/
