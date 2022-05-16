@@ -192,7 +192,7 @@ def heatmap():
 def sensor_report():
     sensor_list = list(mongo.green_wall.sensors.find({}))
     field_names = ['_id','name','type','pos_X','pos_Y','last_updated_at']
-    with open('sensor_data.csv', 'w', newline='') as f_output:
+    with open('report_files/sensor_data.csv', 'w', newline='') as f_output:
         csv_output = csv.writer(f_output, delimiter=",")
         csv_output.writerow(field_names)
 
@@ -204,7 +204,24 @@ def sensor_report():
                 data['pos_X'],
                 data['pos_Y'],
                 data['last_updated_at']])
-    return send_file('sensor_data.csv', as_attachment=True)            
+    return send_file('report_files/sensor_data.csv', as_attachment=True)      
+
+@app.route('/measurement_report')
+def measurement_report():
+    measurements = list(mongo.green_wall.measurements.find({"recorded_at":{"$gt":datetime.utcnow() - timedelta(hours=1)}}))
+    field_names = ['_id','sensor_id','type','value','recorded_at']
+    with open('report_files/measurement_data.csv', 'w', newline='') as f_output:
+        csv_output = csv.writer(f_output, delimiter=",")
+        csv_output.writerow(field_names)
+        for data in measurements:
+            csv_output.writerow([
+                data['_id'],
+                data['sensor_id'],
+                data['type'],
+                data['value'],
+                data['recorded_at']])
+    return send_file('report_files/measurement_data.csv', as_attachment=True)      
+
 
 def getHumidityLevel(humidity):
     humidity_level = ''
