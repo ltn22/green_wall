@@ -181,21 +181,29 @@ while True:
                 pycom.rgbled(0x000000) # Turn LED off
             else:
                 battery_soc_threshold = 90
+                AC_consumption_threshold = 70.0
                 rp = bytearray(response_payload)
                 rp = rp[5:]
                 new_rp = binascii.unhexlify(rp)
                 shed_status_response = cbord.loads(new_rp)
+                print("The shed status response is: ", shed_status_response)
                 battery_soc = shed_status_response['BSOC']
+                AC_consumption = shed_status_response['AC_consumption']
                 print(battery_soc)
                 if battery_soc < battery_soc_threshold:
-                   pycom.rgbled(0x7f0000) # RED 
-                   print("----  Charging Stopped ----")
-                   time.sleep(20)
+                    pycom.rgbled(0x7f0000) # RED
+                    print("----  Charging Stopped due to SOC constraint ----")
+                    time.sleep(20)
+                elif AC_consumption > AC_consumption_threshold:
+                    pycom.rgbled(0x7f0000) # RED
+                    print("----  Charging Stopped due to AC AC_consumption constraint ----")
+                    time.sleep(20)
                 else:
-                   print("Sufficient Battery Power")
-                   pycom.rgbled(0xffffff) #White Continous
-                   time.sleep(5)
-                   pycom.rgbled(0x000000) # Turn LED off
+                    print("Sufficient Battery Parameters")
+                    pycom.rgbled(0xffffff) #White Continous
+                    time.sleep(5)
+                    pycom.rgbled(0x000000) # Turn LED off
+
             pycom.heartbeat(True) # turn led to heartbeat
             time.sleep (30) # wait for 5 minutes.
             #Asking CoAP server for the watering info
