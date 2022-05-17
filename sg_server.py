@@ -80,7 +80,7 @@ def get_VRM_data():
     # for dm in device_measures:
     #     beebotte_data.append(dm['measures'][0])
     # print ("Looking for channel name: ", device['name'])
-    # to_bbt(device['name'], 'humidity', measurements, period=200, factor=0.0244) 
+    to_bbt('smart_grid', 'Batter_SOC', JSONres, period=200, factor=0.0244) 
 
 class humidity_sensor(resource.PathCapable):
 
@@ -182,10 +182,9 @@ class shed_status(resource.Resource):
         ic = 0
         totalh = 0
         #fetch the humidity levels for all the pycom sensors
-        shed_status = []
+        shed_status = {}
         if parameter_name == "BSOC":
             shed_status['BSOC'] = 90.50
-
                 
         print("The shed parameters are: ", shed_status ) 
         #Compress this data using CBOR before sending it bback to watering pycom controller
