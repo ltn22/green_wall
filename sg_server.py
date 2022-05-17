@@ -24,11 +24,8 @@ import asyncio
 import socket
 import json
 import requests
-
-
 import aiocoap.resource as resource
 import aiocoap
-
 import cbor2 as cbor
 import msc_config_bbt #secret keys 
 import beebotte
@@ -68,7 +65,7 @@ def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
 def get_VRM_data():
     #import urequests
     login_url = 'https://vrmapi.victronenergy.com/v2/auth/login'
-    batterysummary_url = "https://vrmapi.victronenergy.com/v2/installations/176105/overallstats"
+    batterysummary_url = "https://vrmapi.victronenergy.com/v2/installations/176105/widgets/Graph?attributeCodes[]=bs"
     login_string = '{"username":"charles.perno@imt-atlantique.net","password":"123456789"}'
 
     #use the name and password you log in to VRM with
@@ -78,6 +75,12 @@ def get_VRM_data():
     response = requests.get(batterysummary_url, headers=headers)
     JSONres = response.json()
     print("Response is ",JSONres)
+    # device_measures = client.green_wall.devicemeasures.find({'device_id':device['_id']},{'measures':1}).limit(10)
+    # beebotte_data = []
+    # for dm in device_measures:
+    #     beebotte_data.append(dm['measures'][0])
+    # print ("Looking for channel name: ", device['name'])
+    # to_bbt(device['name'], 'humidity', measurements, period=200, factor=0.0244) 
 
 class humidity_sensor(resource.PathCapable):
 
@@ -160,7 +163,7 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger("coap-server").setLevel(logging.DEBUG)
 
 
-class watering_info(resource.Resource):
+class shed_status(resource.Resource):
 
     async def render_post(self, request): 
         print ("render", request.opt.uri_path)
@@ -174,40 +177,19 @@ class watering_info(resource.Resource):
             print ("cbor:", cbor.loads(request.payload))
             #the device_name sent by actuator controller can be used to calculate average humidity
             request_data = cbor.loads(request.payload)
-            device_name = request_data[1]
-            #if not found, add the actuator device details in the device table in MongoDB 
-            unique_id = request_data[0]
-            actuator_device = client.green_wall.devices.find_one({"mac_address": unique_id})
-            if actuator_device:
-                newvalues = { "$set": { "last_updated_at": current_time } }
-                client.green_wall.devices.update_one({"mac_address": unique_id}, newvalues)
-            else:    
-                actuator_device_data = { "mac_address": unique_id, "last_updated_at": current_time, "name": "NA"}
-                client.green_wall.devices.insert_one(actuator_device_data)
- 
+            parameter_name = request_data[0]
+        
         ic = 0
         totalh = 0
         #fetch the humidity levels for all the pycom sensors
-        humidity_levels = []
-        if device_name == "ALL":
-            devices = client.green_wall.devices.find()
-        else:
-            devices = client.green_wall.devices.find({"name":device_name})
+        shed_status = []
+        if parameter_name == "BSOC":
+            shed_status['BSOC'] = 90.50
 
-        for d in devices:
-                humidity_level = {}
-                humidity_level['device_name'] = d['name']
-                latest_measures = list(client.green_wall.devicemeasures.find({"device_id":d['_id']}).sort([('recorded_at', -1)]).limit(1))[0]
-                for ms in latest_measures['measures']:
-                    ic += 1
-                    totalh += ms
-                avg_humidity = totalh / ic    
-                humidity_level['avg_humidity'] = avg_humidity
-                humidity_levels.append(humidity_level)
                 
-        print("The Humidity Levels of Pycoms on the wall are: ", humidity_levels ) 
+        print("The shed parameters are: ", shed_status ) 
         #Compress this data using CBOR before sending it bback to watering pycom controller
-        cbor_data = cbor.dumps(humidity_levels)    
+        cbor_data = cbor.dumps(shed_status)    
         #send back the humidity levels to watering pycom
         return aiocoap.Message(code=aiocoap.CHANGED, payload = binascii.hexlify(cbor_data))
 
@@ -234,7 +216,7 @@ def main():
     #Comment up to here
 
     root.add_resource(['humidity'], humidity_sensor())
-    root.add_resource(['watering'], watering_info())
+    root.add_resource(['shed_status'], shed_status())
 
 
     #Uncomment next line to use Default CoAP port
