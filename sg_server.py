@@ -38,28 +38,14 @@ client = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
 
 bbt = beebotte.BBT(msc_config_bbt.API_KEY, msc_config_bbt.SECRET_KEY)
 
-def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
+def to_bbt(channel, res_name, data, factor=1, period=10, epoch=None):
     global bbt
-    
-    prev_value = 0
     data_list = []
-    if epoch:
-        back_time = epoch
-    else:
-        back_time = time.mktime(datetime.datetime.now().timetuple())
-    
-    back_time -= len(cbor_msg)*period
-
-    for e in cbor_msg:
-        
-        back_time += period
-
+    for d in data:
         data_list.append({"resource": res_name,
-                          "data" : e*factor,
-                          "ts": back_time*1000} )
-        
-    pprint.pprint (data_list)
-    
+                          "data" : d[1],
+                          "ts": d[0]} )        
+    pprint.pprint (data_list)  
     bbt.writeBulk(channel, data_list)
 
 def get_VRM_data():
@@ -80,7 +66,7 @@ def get_VRM_data():
     # for dm in device_measures:
     #     beebotte_data.append(dm['measures'][0])
     # print ("Looking for channel name: ", device['name'])
-    to_bbt('smart_grid', 'Batter_SOC', JSONres, period=200, factor=0.0244) 
+    to_bbt('smart_grid', 'Batter_SOC', JSONres['records']['data']['144'], period=200, factor=0.0244) 
 
 class humidity_sensor(resource.PathCapable):
 
