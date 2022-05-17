@@ -66,7 +66,7 @@ def get_VRM_data():
     # for dm in device_measures:
     #     beebotte_data.append(dm['measures'][0])
     # print ("Looking for channel name: ", device['name'])
-    to_bbt('smart_grid', 'Batter_SOC', JSONres['records']['data']['144'], period=200, factor=0.0244) 
+    #to_bbt('smart_grid', 'Batter_SOC', JSONres['records']['data']['144'], period=200, factor=0.0244) 
 
 class humidity_sensor(resource.PathCapable):
 
