@@ -52,16 +52,20 @@ def get_VRM_data():
     #import urequests
     login_url = 'https://vrmapi.victronenergy.com/v2/auth/login'
     #batterysummary_url = "https://vrmapi.victronenergy.com/v2/installations/176105/widgets/Graph?attributeCodes[]=bs"
-    batterysummary_url = "https://vrmapi.victronenergy.com/v2/installations/176105/stats?type=custom?attributeCodes[]=bs"
+    batterysoc_url = "https://vrmapi.victronenergy.com/v2/installations/176105/stats?type=custom&attributeCodes[]=bs"
     login_string = '{"username":"charles.perno@imt-atlantique.net","password":"123456789"}'
 
     #use the name and password you log in to VRM with
     response = requests.post(login_url , login_string)
     token = json.loads(response.text)["token"]   
     headers = {'X-Authorization': "Bearer " + token }
-    response = requests.get(batterysummary_url, headers=headers)
+    response = requests.get(batterysoc_url, headers=headers)
     JSONres = response.json()
-    print("Response is ",JSONres)
+    print("The latest battery state of charge is: ",JSONres['records']['bs'][0][1])
+    batteryop_url = "https://vrmapi.victronenergy.com/v2/installations/176105/stats?type=custom&attributeCodes[]=OP1"
+    response = requests.get(batterysoc_url, headers=headers)
+    JSONres = response.json()
+    print("The latest battery state of charge is: ",JSONres)
     # device_measures = client.green_wall.devicemeasures.find({'device_id':device['_id']},{'measures':1}).limit(10)
     # beebotte_data = []
     # for dm in device_measures:
