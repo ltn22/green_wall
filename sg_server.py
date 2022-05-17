@@ -71,7 +71,7 @@ def get_VRM_data():
     batteryop_url = "https://vrmapi.victronenergy.com/v2/installations/176105/stats?type=custom&attributeCodes[]=o1"
     response = requests.get(batteryop_url, headers=headers)
     JSONres = response.json()
-    battery_AC_consumption = JSONres['records']['o1'][0][1]
+    battery_AC_consumption = round(JSONres['records']['o1'][0][1],2)
     print("The latest battery AC consumption is: ", battery_AC_consumption)
     # device_measures = client.green_wall.devicemeasures.find({'device_id':device['_id']},{'measures':1}).limit(10)
     # beebotte_data = []
