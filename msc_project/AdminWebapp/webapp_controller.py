@@ -245,13 +245,6 @@ def line():
     line_values=values
     return render_template('smart_grid.html', title='Battery State of Charge', max=100, labels=line_labels, values=line_values)
 
-@app.route('/sg_pie')
-def pie():
-    pie_labels = labels
-    pie_values = values
-    return render_template('pie_chart.html', title='Bitcoin Monthly Price in USD', max=17000, set=zip(values, labels, colors))
-    
-
 
 def getHumidityLevel(humidity):
     humidity_level = ''
