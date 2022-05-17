@@ -42,9 +42,11 @@ def to_bbt(channel, res_name, data, factor=1, period=10, epoch=None):
     global bbt
     data_list = []
     for d in data:
-        data_list.append({"data" : d[1], "ts": d[0]})        
+        data_list.append({"resource": res_name,
+                          "data" : d[1],
+                          "ts": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[0]))} )        
     pprint.pprint (data_list)  
-    bbt.writeBulk(channel, [{"resource": "Batter_SOC","data":data_list}])
+    bbt.writeBulk(channel, data_list)
 
 def get_VRM_data():
     #import urequests
