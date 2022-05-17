@@ -16,12 +16,9 @@ messages (4.xx and 5.xx) and not taken into account by the program.
 #SERVER="SIGFOX"
 #Service for Gwen's database
 SERVER = "79.137.84.149" # change to your server's IP address, or SIGFOX or LORAWAN
-PORT   = 5683
+PORT   = 5685
 destination = (SERVER, PORT)
 
-#Service for Msc project
-PORT2 = 5684
-destination2 = (SERVER, PORT2)
 
 ipaddr='10.51.0.246'
 
@@ -166,44 +163,36 @@ while True:
     try:
         while wlan.isconnected():
             print("*********************************")
-            print("Requesting Watering Data")
+            print("Requesting Shed Status Data")
             pycom.rgbled(0x007f00) # Blinks Green
-            #send the mac address of the device as an indentifier
-            mac_address = binascii.hexlify(wlan.mac()[0]).decode('utf-8')
-            print("The mac address is: " + mac_address)
-            print("The device IP adress is: " + ipaddr)
             #you can send the name of the device here, specify ALL for getting data of all devices
-            device_name="pycom141"
-            request_payload = [mac_address, device_name]
-            response_payload = send_coap_message (s, destination2, "watering",request_payload)
-            print("---- The returned value of watering info payload: ----" )
+            parameter_name="BSOC"
+            request_payload = [parameter_name]
+            response_payload = send_coap_message(s, destination, "shed_status",request_payload)
+            print("---- The returned value of shed status payload: ----" )
             print(response_payload)
             time.sleep_ms(500)
             pycom.rgbled(0x000000) #Turn Led off
             time.sleep(1)
-
             if response_payload == None:
-                print ("No response, no watering")
+                print ("No response for shed status")
                 pycom.rgbled(0x7f7500) # Yellow Continuous
                 time.sleep(5)
                 pycom.rgbled(0x000000) # Turn LED off
             else:
-                relative_humidity_threshold = 50
+                battery_soc_threshold = 90
                 rp = bytearray(response_payload)
                 rp = rp[5:]
                 new_rp = binascii.unhexlify(rp)
-                humidity_levels= cbord.loads(new_rp)
-                print(humidity_levels)
-                relative_humidity = (100 * humidity_levels[0]['avg_humidity'])/4095
-                print("Relative Humidity: ", relative_humidity)
-                if relative_humidity < relative_humidity_threshold:
-                   pycom.rgbled(0x00007f) # Blue Continuous
-                   print("----  Watering Started ----")
+                shed_status_response = cbord.loads(new_rp)
+                battery_soc = shed_status_response['BSOC']
+                print(battery_soc)
+                if battery_soc < battery_soc_threshold:
+                   pycom.rgbled(0x7f0000) # RED 
+                   print("----  Charging Stopped ----")
                    time.sleep(20)
-                   pycom.rgbled(0x000000) # Turn LED off
-                   print("----  Watering Finished ----")
                 else:
-                   print("Sufficient Relative Humidity")
+                   print("Sufficient Battery Power")
                    pycom.rgbled(0xffffff) #White Continous
                    time.sleep(5)
                    pycom.rgbled(0x000000) # Turn LED off
@@ -218,8 +207,8 @@ while True:
             wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
             #wlan.ifconfig(config=('10.51.0.241', '255.255.255.0', '10.51.0.1', '192.108.119.134'))
             #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
-            wlan.connect('lala', auth=(network.WLAN.WPA2, '12341234'))
-            #wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+            #wlan.connect('lala', auth=(network.WLAN.WPA2, '12341234'))
+            wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
             time.sleep(1)
             pycom.rgbled(0x7f0000) # red
             time.sleep(1)

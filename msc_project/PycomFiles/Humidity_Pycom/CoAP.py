@@ -2,8 +2,9 @@ import struct
 import binascii
 import sys
 
-#This version of CoAP.py DOES NOT Includes a piece of code to retreive acknowledgements
+#This version of CoAP.py includes a piece of code to retreive acknowledgements
 #back to the lopy from the server
+
 upython = (sys.implementation.name == "micropython")
 
 if upython:
@@ -259,17 +260,20 @@ def send_ack(s, dest, coap):
     attempts = 1
 
     while True:
-        print ("DEST ======", dest)
-        k =s.sendto (coap.to_byte(), dest)
-        print (k)
-
+        s.sendto (coap.to_byte(), dest)
+        s.settimeout(10)
+        ##This block of code allows the acknowledgements to the Lopy.
         if coap.get_type() == NON:
-            return None
-
+            try:
+                resp,addr = s.recvfrom(2000)
+                return resp
+            except:
+                return None
         s.settimeout(10)
         try:
             resp,addr = s.recvfrom(2000)
             answer = Message(resp)
+
             if answer.get_mid() == c_mid:
                 return answer
         except:

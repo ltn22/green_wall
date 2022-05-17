@@ -297,6 +297,5 @@ def get_msg(s, filter=None, timeout=2):
 
 if __name__ == "__main__":
     coap = Message()
-
     coap.new_header(token=0x1122334455)
     coap.dump()

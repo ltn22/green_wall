@@ -51,7 +51,8 @@ def to_bbt(channel, res_name, data, factor=1, period=10, epoch=None):
 def get_VRM_data():
     #import urequests
     login_url = 'https://vrmapi.victronenergy.com/v2/auth/login'
-    batterysummary_url = "https://vrmapi.victronenergy.com/v2/installations/176105/widgets/Graph?attributeCodes[]=bs"
+    #batterysummary_url = "https://vrmapi.victronenergy.com/v2/installations/176105/widgets/Graph?attributeCodes[]=bs"
+    batterysummary_url = "https://vrmapi.victronenergy.com/v2/installations/176105/widgets/BatterySummary"
     login_string = '{"username":"charles.perno@imt-atlantique.net","password":"123456789"}'
 
     #use the name and password you log in to VRM with
@@ -60,7 +61,7 @@ def get_VRM_data():
     headers = {'X-Authorization': "Bearer " + token }
     response = requests.get(batterysummary_url, headers=headers)
     JSONres = response.json()
-    print("Response is ",JSONres)
+    #print("Response is ",JSONres)
     # device_measures = client.green_wall.devicemeasures.find({'device_id':device['_id']},{'measures':1}).limit(10)
     # beebotte_data = []
     # for dm in device_measures:

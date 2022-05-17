@@ -163,7 +163,7 @@ while True:
     try:
         while wlan.isconnected():
             print("*********************************")
-            print("Requesting Shed Status Data")
+            print("Requesting Battery Status Data")
             pycom.rgbled(0x007f00) # Blinks Green
             #you can send the name of the device here, specify ALL for getting data of all devices
             parameter_name="BSOC"
@@ -175,20 +175,19 @@ while True:
             pycom.rgbled(0x000000) #Turn Led off
             time.sleep(1)
             if response_payload == None:
-                print ("No response for shed status")
+                print ("No response, no watering")
                 pycom.rgbled(0x7f7500) # Yellow Continuous
                 time.sleep(5)
                 pycom.rgbled(0x000000) # Turn LED off
             else:
-                battery_soc_threshold = 90
+                batter_soc_threshold = 90
                 rp = bytearray(response_payload)
                 rp = rp[5:]
                 new_rp = binascii.unhexlify(rp)
-                shed_status_response = cbord.loads(new_rp)
-                battery_soc = shed_status_response['BSOC']
+                battery_soc= cbord.loads(new_rp)
                 print(battery_soc)
                 if battery_soc < battery_soc_threshold:
-                   pycom.rgbled(0x7f0000) # RED
+                   pycom.rgbled(0x00007f) # Blue Continuous
                    print("----  Charging Stopped ----")
                    time.sleep(20)
                 else:
