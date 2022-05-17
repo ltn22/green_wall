@@ -38,6 +38,9 @@ client = MongoClient("mongodb://gwen:thesard_errant@127.0.0.1")
 
 bbt = beebotte.BBT(msc_config_bbt.API_KEY, msc_config_bbt.SECRET_KEY)
 
+battery_SOC = 0
+battery_AC_consumption = 0
+
 def to_bbt(channel, res_name, data, factor=1, period=10, epoch=None):
     global bbt
     data_list = []
@@ -61,11 +64,15 @@ def get_VRM_data():
     headers = {'X-Authorization': "Bearer " + token }
     response = requests.get(batterysoc_url, headers=headers)
     JSONres = response.json()
-    print("The latest battery state of charge is: ",JSONres['records']['bs'][0][1])
-    batteryop_url = "https://vrmapi.victronenergy.com/v2/installations/176105/stats?type=custom&attributeCodes[]=OP1"
-    response = requests.get(batterysoc_url, headers=headers)
+    global battery_SOC
+    global battery_AC_consumption
+    battery_SOC = JSONres['records']['bs'][0][1]
+    print("The latest battery state of charge is: ", battery_SOC)
+    batteryop_url = "https://vrmapi.victronenergy.com/v2/installations/176105/stats?type=custom&attributeCodes[]=o1"
+    response = requests.get(batteryop_url, headers=headers)
     JSONres = response.json()
-    print("The latest battery state of charge is: ",JSONres)
+    battery_AC_consumption = JSONres['records']['o1'][0][1]
+    print("The latest battery AC consumption is: ", battery_AC_consumption)
     # device_measures = client.green_wall.devicemeasures.find({'device_id':device['_id']},{'measures':1}).limit(10)
     # beebotte_data = []
     # for dm in device_measures:
@@ -157,6 +164,8 @@ logging.getLogger("coap-server").setLevel(logging.DEBUG)
 class shed_status(resource.Resource):
 
     async def render_post(self, request): 
+        global battery_SOC
+        global battery_AC_consumption
         print ("render", request.opt.uri_path)
         current_time = str(datetime.datetime.utcnow())
         ct = request.opt.content_format or \
@@ -175,7 +184,8 @@ class shed_status(resource.Resource):
         #fetch the humidity levels for all the pycom sensors
         shed_status = {}
         if parameter_name == "BSOC":
-            shed_status['BSOC'] = 90.50
+            shed_status['BSOC'] = battery_SOC
+            shed_status['AC_consumption'] = battery_AC_consumption
                 
         print("The shed parameters are: ", shed_status ) 
         #Compress this data using CBOR before sending it bback to watering pycom controller
