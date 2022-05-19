@@ -221,30 +221,6 @@ def measurement_report():
                 data['recorded_at']])
     return send_file('report_files/measurement_data.csv', as_attachment=True)  
 
-# Code for SmartGrid Dashboard
-labels = [
-    'JAN', 'FEB', 'MAR', 'APR',
-    'MAY', 'JUN', 'JUL', 'AUG',
-    'SEP', 'OCT', 'NOV', 'DEC'
-]
-
-values = [
-    96.67, 76.89, 79.75, 49.19,
-    23.91, 85.28, 73.83, 64.87,
-    49.29, 58.30, 99.07, 93.27
-]
-
-colors = [
-    "#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA",
-    "#ABCDEF", "#DDDDDD", "#ABCABC", "#4169E1",
-    "#C71585", "#FF4500", "#FEDCBA", "#46BFBD"]
-
-@app.route('/sg_dashboard')
-def line():
-    line_labels=labels
-    line_values=values
-    return render_template('smart_grid.html', title='Battery State of Charge', max=100, labels=line_labels, values=line_values)
-
 
 def getHumidityLevel(humidity):
     humidity_level = ''
