@@ -1,31 +1,3 @@
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@ksjoshi88 
-ltn22
-/
-green_wall
-Public
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-green_wall/msc_project/PycomFiles/Humidity_Pycom/main.py /
-
-Kaustubh Joshi Testing changes to generic_relay
-Latest commit 66f190a yesterday
- History
- 0 contributors
-232 lines (200 sloc)  9.23 KB
-   
 """
 This program runs on Python3 in terminal mode and Lopy4. On LoPy4, it sends
 information either on LoRaWAN Networks, Sigfox or Wi-Fi. Selection is done
@@ -152,7 +124,7 @@ try:
             the SCHC header is TTTT UUUU
             """
             uri_index = ['humidity', None, None, None, None, None].index(uri_path)
-            schc_residue = (lorawan_MID << 4) | uri_index # MMMM and UU
+            schc_residue = (lorawan_MID & 0xFF) # MMMM and UU
             lorawan_MID += 1
             lorawan_MID &= 0x0F # on 4 bits
             if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
@@ -201,7 +173,7 @@ except OSError as err:
     machine.reset()
 
 lora_counter = 1
-lora_divisor = 3
+lora_divisor = 2
 historic_measures = [0] * 8
 
 while True:
@@ -224,7 +196,7 @@ while True:
                 send_coap_message (s_lora, "LORAWAN", "humidity", measures, dev_eui)
                 historic_measures = [0] * 8
                 print("Successful LoraWAN request sent.")
-                time.sleep(15)
+                time.sleep(10)
         else:
             if wlan.isconnected():
                 print("Here is WiFi connected section")
@@ -235,11 +207,11 @@ while True:
                 current_measures = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
                 print(current_measures)
                 #send_coap_message (s, destination, "moisture", m)
-                send_coap_message (s_wifi, destination2, "humidity", current_measures, mac_address)
+                #send_coap_message (s_wifi, destination2, "humidity", current_measures, mac_address)
                 print("SUCCESS WiFi")
                 historic_measures = add_measures(current_measures, historic_measures)
                 print("Current historic_measures: ", historic_measures)
-                time.sleep(15) # wait for 3 minutes 20 seconds
+                #time.sleep(15) # wait for 3 minutes 20 seconds
             else:
                 print("Here is WiFi not connected section")
                 pycom.heartbeat(False) # tu¸rn led to white
@@ -258,16 +230,3 @@ while True:
         print("an error ocurred")
         print("OS error: {0}".format(err))
         machine.reset()
-© 2022 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-Loading complete

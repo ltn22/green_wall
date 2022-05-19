@@ -67,6 +67,7 @@ def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
 class humidity_sensor(resource.PathCapable):
 
     async def render(self, request):
+        print("HERE inside humidity")
         print ("render", request.opt.uri_path)
         if len(request.opt.uri_path) > 1 :
             device_name = request.opt.uri_path[0]
@@ -224,7 +225,7 @@ def main():
     #Uncomment next line to use Default CoAP port
     #asyncio.Task(aiocoap.Context.create_server_context(root))
     #Comment next line to use Default CoAP port 
-    asyncio.Task(aiocoap.Context.create_server_context(root,bind=(ip_addr, port)))
+    asyncio.Task(aiocoap.Context.create_server_context(root,bind=("::", port)))
 
     asyncio.get_event_loop().run_forever()
 
