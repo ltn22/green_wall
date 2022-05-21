@@ -155,30 +155,31 @@ class humidity_lora(resource.PathCapable):
         print("Content Type is: ", ct)
         if ct == aiocoap.numbers.media_types_rev['text/plain']:
             print ("text:", request.payload)
+            data = cbor.loads(request.payload) 
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
             print ("cbor:", cbor.loads(request.payload))
             data = cbor.loads(request.payload)    
-            device_name = data[0]  
-            print("The device name is:", device_name)
-            measurements = data[1:] 
-            #if not found, add the device details in the device table in MongoDB 
-            device = client.green_wall.devices.find_one({"dev_eui": unique_id})
-            if device:
-                newvalues = { "$set": { "last_updated_at": current_time, "name": device_name } }
-                client.green_wall.devices.update_one({"dev_eui": unique_id}, newvalues)
-            else: 
-                device = client.green_wall.devices.find_one({"name": device_name})
-                if device:
-                    newvalues = { "$set": { "last_updated_at": current_time, "dev_eui": unique_id } }
-                    client.green_wall.devices.update_one({"name": device_name}, newvalues)   
-                else:    
-                    device_data = { "dev_eui": unique_id, "last_updated_at": current_time, "name": device_name}
-                    client.green_wall.devices.insert_one(device_data)
-                    device = client.green_wall.devices.find_one({"dev_eui": unique_id})
-            save_measurements(device, measurements)
         else:
             print ("Unknown format")
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
+        device_name = data[0]  
+        print("The device name is:", device_name)
+        measurements = data[1:] 
+        #if not found, add the device details in the device table in MongoDB 
+        device = client.green_wall.devices.find_one({"dev_eui": unique_id})
+        if device:
+            newvalues = { "$set": { "last_updated_at": current_time, "name": device_name } }
+            client.green_wall.devices.update_one({"dev_eui": unique_id}, newvalues)
+        else: 
+            device = client.green_wall.devices.find_one({"name": device_name})
+            if device:
+                newvalues = { "$set": { "last_updated_at": current_time, "dev_eui": unique_id } }
+                client.green_wall.devices.update_one({"name": device_name}, newvalues)   
+            else:    
+                device_data = { "dev_eui": unique_id, "last_updated_at": current_time, "name": device_name}
+                client.green_wall.devices.insert_one(device_data)
+                device = client.green_wall.devices.find_one({"dev_eui": unique_id})
+            save_measurements(device, measurements)
 
         return aiocoap.Message(code=aiocoap.CHANGED)
 
