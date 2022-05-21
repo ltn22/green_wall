@@ -149,6 +149,7 @@ class humidity_lora(resource.PathCapable):
         current_time = str(datetime.datetime.utcnow())
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
+        print("Content Type is: ", ct)
         if ct == aiocoap.numbers.media_types_rev['text/plain']:
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
