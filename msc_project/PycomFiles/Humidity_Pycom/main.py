@@ -121,10 +121,17 @@ try:
             global lorawan_MID # /!\ change name to lorawan_token
             """ SCHC compression for LoraWAN, use rule ID 98 stored in fPort,
             followed by MID on 4 bits and 4 bits for an index on Uri-path.
-            the SCHC header is TTTT UUUU
+            the SCHC header is MMMM UUUU
             """
-            uri_index = ['humidity', None, None, None, None, None].index(uri_path)
-            schc_residue = (lorawan_MID & 0xFF) # MMMM and UU
+
+            uri_index = ["humidity", "temperature", "pressure", "memory", None, None, None, None, None,
+                      None, None, None, None, None, None, None,].index(uri_path)
+            print("uri_index",uri_index)
+            print("MID", lorawan_MID)
+            print("MID", bin(lorawan_MID))
+            schc_residue = (lorawan_MID << 4) | uri_index # MMMM and UUUU
+            print("SCHC_RESIDUE", bin(schc_residue))
+            print("SCHC_RESIDUE normal", schc_residue)
             lorawan_MID += 1
             lorawan_MID &= 0x0F # on 4 bits
             if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
@@ -196,7 +203,7 @@ while True:
                 send_coap_message (s_lora, "LORAWAN", "humidity", measures, dev_eui)
                 historic_measures = [0] * 8
                 print("Successful LoraWAN request sent.")
-                time.sleep(10)
+                time.sleep(30)
         else:
             if wlan.isconnected():
                 print("Here is WiFi connected section")
@@ -207,11 +214,11 @@ while True:
                 current_measures = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
                 print(current_measures)
                 #send_coap_message (s, destination, "moisture", m)
-                #send_coap_message (s_wifi, destination2, "humidity", current_measures, mac_address)
+                send_coap_message (s_wifi, destination2, "humidity", current_measures, mac_address)
                 print("SUCCESS WiFi")
                 historic_measures = add_measures(current_measures, historic_measures)
                 print("Current historic_measures: ", historic_measures)
-                #time.sleep(15) # wait for 3 minutes 20 seconds
+                time.sleep(15) # wait for 3 minutes 20 seconds
             else:
                 print("Here is WiFi not connected section")
                 pycom.heartbeat(False) # tu¸rn led to white
