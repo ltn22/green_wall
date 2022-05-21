@@ -148,7 +148,6 @@ try:
             coap = CoAP.Message()
             coap.new_header(type=CoAP.NON, code=CoAP.POST)
             coap.add_option(CoAP.Uri_path, uri_path)
-            coap.add_option(CoAP.Uri_path, DEVICE_NAME)
             if unique_id:
                 coap.add_option(CoAP.Uri_path, unique_id)
             # /proxy/mac_address

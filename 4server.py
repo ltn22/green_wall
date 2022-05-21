@@ -141,6 +141,7 @@ class humidity_wifi(resource.PathCapable):
 class humidity_lora(resource.PathCapable):
 
     async def render(self, request):
+        print("HERE in HUMIDITY LORA")
         print ("render", request.opt.uri_path)
         unique_id = request.opt.uri_path[0] 
         print ("The unique id is: ", unique_id)
@@ -154,6 +155,7 @@ class humidity_lora(resource.PathCapable):
             print ("cbor:", cbor.loads(request.payload))
             data = cbor.loads(request.payload)    
             device_name = data[0]  
+            print("The device name is:", device_name)
             measurements = data[1:] 
             #if not found, add the device details in the device table in MongoDB 
             device = client.green_wall.devices.find_one({"dev_eui": unique_id})
