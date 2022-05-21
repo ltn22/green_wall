@@ -124,7 +124,7 @@ try:
             the SCHC header is MMMM UUUU
             """
 
-            uri_index = ["humidity", "temperature", "pressure", "memory", None, None, None, None, None,
+            uri_index = ["humidity_l", "temperature_l", "pressure_l", "memory_l", None, None, None, None, None,
                       None, None, None, None, None, None, None,].index(uri_path)
             print("uri_index",uri_index)
             print("MID", lorawan_MID)
@@ -212,12 +212,12 @@ while True:
                 print("The device IP adress is: " + ipaddr)
                 current_measures = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
                 print(current_measures)
+                historic_measures = add_measures(current_measures, historic_measures)
+                print("Current historic_measures: ", historic_measures)
                 current_measures.insert(0, DEVICE_NAME)
                 #send_coap_message (s, destination, "moisture", m)
                 send_coap_message (s_wifi, destination2, "humidity_w", current_measures, mac_address)
                 print("SUCCESS WiFi")
-                historic_measures = add_measures(current_measures, historic_measures)
-                print("Current historic_measures: ", historic_measures)
                 time.sleep(15) # wait for 3 minutes 20 seconds
             else:
                 print("Here is WiFi not connected section")

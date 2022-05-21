@@ -65,6 +65,7 @@ def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
 
 def save_measurements(device, measurements):
     sensor_pin_counter = 13
+    current_time = str(datetime.datetime.utcnow())
     # store the measurements with relation to device and sensors
     for m in measurements:
         sensor_name = device['name'] + "P"+ str(sensor_pin_counter)
