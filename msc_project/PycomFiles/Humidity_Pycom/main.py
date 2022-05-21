@@ -124,12 +124,13 @@ try:
             the SCHC header is MMMM UUUU
             """
 
-            uri_index = ["humidity_l", "temperature_l", "pressure_l", "memory_l", None, None, None, None, None,
-                      None, None, None, None, None, None, None,].index(uri_path)
-            print("uri_index",uri_index)
+            # uri_index = ["humidity_l", "temperature_l", "pressure_l", "memory_l", None, None, None, None, None,
+            #           None, None, None, None, None, None, None,].index(uri_path)
+            # print("uri_index",uri_index)
             print("MID", lorawan_MID)
             print("MID", bin(lorawan_MID))
-            schc_residue = (lorawan_MID << 4) | uri_index # MMMM and UUUU
+            #schc_residue = (lorawan_MID << 4) | uri_index # MMMM and UUUU
+            schc_residue = (lorawan_MID & 0xFF) 
             print("SCHC_RESIDUE", bin(schc_residue))
             print("SCHC_RESIDUE normal", schc_residue)
             lorawan_MID += 1
@@ -137,7 +138,6 @@ try:
             if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
             msg = struct.pack("!B", schc_residue) # add SCHC header to the message
             msg += cbor.dumps(message)
-
             print ("length", len(msg), binascii.hexlify(msg))
             rule_ID = 98
             sock.bind(rule_ID)

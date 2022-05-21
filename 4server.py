@@ -148,7 +148,6 @@ class humidity_lora(resource.PathCapable):
         print ("render", request.opt.uri_path)
         unique_id = request.opt.uri_path[0] 
         print ("The unique id is: ", unique_id)
-
         current_time = str(datetime.datetime.utcnow())
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
@@ -162,6 +161,7 @@ class humidity_lora(resource.PathCapable):
         else:
             print ("Unknown format")
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
+        print("The LORAWAN data is:", data)
         device_name = data[0]  
         print("The device name is:", device_name)
         measurements = data[1:] 
