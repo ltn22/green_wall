@@ -99,6 +99,8 @@ def save_measurements(device, measurements):
 class humidity_wifi(resource.PathCapable):
 
     async def render(self, request):
+        print("HERE in HUMIDITY Wifi")
+        print("Request details:", request.opt)
         print ("render", request.opt.uri_path)
         unique_id = request.opt.uri_path[0] 
         print ("The unique id is: ", unique_id)
@@ -142,7 +144,7 @@ class humidity_lora(resource.PathCapable):
 
     async def render(self, request):
         print("HERE in HUMIDITY LORA")
-        print("Request details:", request)
+        print("Request details:", request.opt)
         print ("render", request.opt.uri_path)
         unique_id = request.opt.uri_path[0] 
         print ("The unique id is: ", unique_id)
