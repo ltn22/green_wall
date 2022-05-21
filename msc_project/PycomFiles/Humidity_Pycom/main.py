@@ -197,10 +197,9 @@ while True:
                 measures = divide_measures(historic_measures, lora_divisor - 1)
                 #measures = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
                 print("Avg measures:", measures)
-                measures.insert(0, dev_eui)
                 measures.insert(0, DEVICE_NAME)
                 print("Final LoRAWAN measures:", measures)
-                send_coap_message (s_lora, "LORAWAN", "humidity", measures, dev_eui)
+                send_coap_message (s_lora, "LORAWAN", "humidity_l", measures, dev_eui)
                 historic_measures = [0] * 8
                 print("Successful LoraWAN request sent.")
                 time.sleep(30)
@@ -213,8 +212,9 @@ while True:
                 print("The device IP adress is: " + ipaddr)
                 current_measures = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
                 print(current_measures)
+                current_measures.insert(0, DEVICE_NAME)
                 #send_coap_message (s, destination, "moisture", m)
-                send_coap_message (s_wifi, destination2, "humidity", current_measures, mac_address)
+                send_coap_message (s_wifi, destination2, "humidity_w", current_measures, mac_address)
                 print("SUCCESS WiFi")
                 historic_measures = add_measures(current_measures, historic_measures)
                 print("Current historic_measures: ", historic_measures)

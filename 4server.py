@@ -63,35 +63,59 @@ def to_bbt(channel, res_name, cbor_msg, factor=1, period=10, epoch=None):
     
     bbt.writeBulk(channel, data_list)
 
+def save_measurements(device, measurements):
+    sensor_pin_counter = 13
+    # store the measurements with relation to device and sensors
+    for m in measurements:
+        sensor_name = device['name'] + "P"+ str(sensor_pin_counter)
+        sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
+        if sensor:
+            newvalues = { "$set": { "last_updated_at": current_time} }
+            client.green_wall.sensors.update_one({"_id": sensor['_id']}, newvalues)    
+        else:    
+            sensor_data = { "name":sensor_name, "type":"humidity", "device_id": device['_id'],"pos_X":-1, "pos_Y":-1, "last_updated_at": current_time}
+            client.green_wall.sensors.insert_one(sensor_data)
+            sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
+        #add the measurement for the sensor
+        relative_humidity = round((m * 100 / 4096),2)
+        measurement_data = { "sensor_id": sensor['_id'], "type": "humidity", "value": relative_humidity, "recorded_at": current_time}
+        client.green_wall.measurements.insert_one(measurement_data)
+        sensor_pin_counter += 1
+    # store the measurements for raw data collection
+    device_data = { "device_id": device['_id'],
+                "measures": measurements,
+                "recorded_at" :  datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()}
+    client.green_wall.devicemeasures.insert_one(device_data)   
+    #send data to beebotte
+    device_measures = client.green_wall.devicemeasures.find({'device_id':device['_id']},{'measures':1}).limit(10)
+    beebotte_data = []
+    for dm in device_measures:
+        beebotte_data.append(dm['measures'][0])
+    print ("Looking for channel name: ", device['name'])
+    to_bbt(device['name'], 'humidity', measurements, period=200, factor=0.0244) 
 
-class humidity_sensor(resource.PathCapable):
+
+class humidity_wifi(resource.PathCapable):
 
     async def render(self, request):
-        print("HERE inside humidity")
         print ("render", request.opt.uri_path)
-        if len(request.opt.uri_path) > 1 :
-            device_name = request.opt.uri_path[0]
-            unique_id = request.opt.uri_path[1]
-        else:
-            unique_id = request.opt.uri_path[0] 
-            device_name = "capteurs"   
-
-        print("The device name:", device_name)
+        unique_id = request.opt.uri_path[0] 
         print ("The unique id is: ", unique_id)
-        
+
         current_time = str(datetime.datetime.utcnow())
         ct = request.opt.content_format or \
                 aiocoap.numbers.media_types_rev['text/plain']
-
         if ct == aiocoap.numbers.media_types_rev['text/plain']:
             print ("text:", request.payload)
         elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
             print ("cbor:", cbor.loads(request.payload))
-            measurements = cbor.loads(request.payload)       
+            data = cbor.loads(request.payload)    
+            device_name = data[0]   # temporary device name 
+            measurements = data[1:] 
             #if not found, add the device details in the device table in MongoDB 
             device = client.green_wall.devices.find_one({"mac_address": unique_id})
             if device:
-                newvalues = { "$set": { "last_updated_at": current_time } }
+                newvalues = { "$set": { "last_updated_at": current_time, "name": device_name } }
                 client.green_wall.devices.update_one({"mac_address": unique_id}, newvalues)
             else: 
                 device = client.green_wall.devices.find_one({"name": device_name})
@@ -102,37 +126,7 @@ class humidity_sensor(resource.PathCapable):
                     device_data = { "mac_address": unique_id, "last_updated_at": current_time, "name": device_name}
                     client.green_wall.devices.insert_one(device_data)
                     device = client.green_wall.devices.find_one({"mac_address": unique_id})
-            
-            sensor_pin_counter = 13
-            # store the measurements with relation to device and sensors
-            for m in measurements:
-                sensor_name = device['name'] + "P"+ str(sensor_pin_counter)
-                sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
-                if sensor:
-                    newvalues = { "$set": { "last_updated_at": current_time} }
-                    client.green_wall.sensors.update_one({"_id": sensor['_id']}, newvalues)    
-                else:    
-                    sensor_data = { "name":sensor_name, "type":"humidity", "device_id": device['_id'],"pos_X":-1, "pos_Y":-1, "last_updated_at": current_time}
-                    client.green_wall.sensors.insert_one(sensor_data)
-                    sensor = client.green_wall.sensors.find_one({"name": sensor_name, "device_id": device['_id']})
-                #add the measurement for the sensor
-                relative_humidity = round((m * 100 / 4096),2)
-                measurement_data = { "sensor_id": sensor['_id'], "type": "humidity", "value": relative_humidity, "recorded_at": current_time}
-                client.green_wall.measurements.insert_one(measurement_data)
-                sensor_pin_counter += 1
-            # store the measurements for raw data collection
-            device_data = { "device_id": device['_id'],
-                        "measures": measurements,
-                        "recorded_at" :  datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()}
-            client.green_wall.devicemeasures.insert_one(device_data)   
-            #send data to beebotte
-            device_measures = client.green_wall.devicemeasures.find({'device_id':device['_id']},{'measures':1}).limit(10)
-            beebotte_data = []
-            for dm in device_measures:
-                beebotte_data.append(dm['measures'][0])
-            print ("Looking for channel name: ", device['name'])
-            to_bbt(device['name'], 'humidity', measurements, period=200, factor=0.0244) 
-
+            save_measurements(device, measurements)
         else:
             print ("Unknown format")
             return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
@@ -142,6 +136,48 @@ class humidity_sensor(resource.PathCapable):
 
     async def needs_blockwise_assembly(self, request):
         return False
+
+class humidity_lora(resource.PathCapable):
+
+    async def render(self, request):
+        print ("render", request.opt.uri_path)
+        unique_id = request.opt.uri_path[0] 
+        print ("The unique id is: ", unique_id)
+
+        current_time = str(datetime.datetime.utcnow())
+        ct = request.opt.content_format or \
+                aiocoap.numbers.media_types_rev['text/plain']
+        if ct == aiocoap.numbers.media_types_rev['text/plain']:
+            print ("text:", request.payload)
+        elif ct == aiocoap.numbers.media_types_rev['application/cbor']:
+            print ("cbor:", cbor.loads(request.payload))
+            data = cbor.loads(request.payload)    
+            device_name = data[0]  
+            measurements = data[1:] 
+            #if not found, add the device details in the device table in MongoDB 
+            device = client.green_wall.devices.find_one({"dev_eui": unique_id})
+            if device:
+                newvalues = { "$set": { "last_updated_at": current_time, "name": device_name } }
+                client.green_wall.devices.update_one({"dev_eui": unique_id}, newvalues)
+            else: 
+                device = client.green_wall.devices.find_one({"name": device_name})
+                if device:
+                    newvalues = { "$set": { "last_updated_at": current_time, "dev_eui": unique_id } }
+                    client.green_wall.devices.update_one({"name": device_name}, newvalues)   
+                else:    
+                    device_data = { "dev_eui": unique_id, "last_updated_at": current_time, "name": device_name}
+                    client.green_wall.devices.insert_one(device_data)
+                    device = client.green_wall.devices.find_one({"dev_eui": unique_id})
+            save_measurements(device, measurements)
+        else:
+            print ("Unknown format")
+            return aiocoap.Message(code=aiocoap.UNSUPPORTED_MEDIA_TYPE)
+
+        return aiocoap.Message(code=aiocoap.CHANGED)
+
+
+    async def needs_blockwise_assembly(self, request):
+        return False        
 
 # logging setup
 logging.basicConfig(level=logging.INFO)
@@ -220,7 +256,8 @@ def main():
     print ("server running on ", ip_addr, "at port", port)
     #Comment up to here
 
-    root.add_resource(['humidity'], humidity_sensor())
+    root.add_resource(['humidity_w'], humidity_wifi())
+    root.add_resource(['humidity_l'], humidity_lora())
     root.add_resource(['watering'], watering_info())
 
 
