@@ -142,6 +142,7 @@ class humidity_lora(resource.PathCapable):
 
     async def render(self, request):
         print("HERE in HUMIDITY LORA")
+        print("Request details:", request)
         print ("render", request.opt.uri_path)
         unique_id = request.opt.uri_path[0] 
         print ("The unique id is: ", unique_id)
