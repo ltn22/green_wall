@@ -87,7 +87,10 @@ try:
 
     # WIFI with IP address
     s_wifi = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    wlan = network.WLAN(mode=network.WLAN.STA)
     MTU = 200 # maximum packet size, could be higher
+    lorawan_MID = 1
+
     # -----------------  SENSORS -----------------------
     from machine import ADC
     adc=ADC()
@@ -107,79 +110,66 @@ try:
     else:
         coap_header_size = 25 #  coap header size approximated
 
-    REPORT_PERIOD = 60 # send a frame every 60 sample (1 hour)
-    # Offset are used to desynchronize sendings, and the value is != form 0
-    # at the first round, after the first sending offset is set to 0, but since
-    # buffers have different filling level, the desynchronization is kept. In the
-    # default configuration, one message is sent every 15 minutes.
-    # ------------- SENDING DATA ------------------------
-
-
-    lorawan_MID = 1 # when SCHC is used
-    def send_coap_message(sock, destination, uri_path, message, unique_id = None):
-        if destination == "LORAWAN": # do SCHC compression
-            global lorawan_MID # /!\ change name to lorawan_token
-            """ SCHC compression for LoraWAN, use rule ID 98 stored in fPort,
-            followed by MID on 4 bits and 4 bits for an index on Uri-path.
-            the SCHC header is MMMM UUUU
-            """
-
-            # uri_index = ["humidity_l", "temperature_l", "pressure_l", "memory_l", None, None, None, None, None,
-            #           None, None, None, None, None, None, None,].index(uri_path)
-            # print("uri_index",uri_index)
-            print("MID", lorawan_MID)
-            print("MID", bin(lorawan_MID))
-            #schc_residue = (lorawan_MID << 4) | uri_index # MMMM and UUUU
-            schc_residue = (lorawan_MID & 0xFF) 
-            print("SCHC_RESIDUE", bin(schc_residue))
-            print("SCHC_RESIDUE normal", schc_residue)
-            lorawan_MID += 1
-            lorawan_MID &= 0x0F # on 4 bits
-            if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
-            msg = struct.pack("!B", schc_residue) # add SCHC header to the message
-            msg += cbor.dumps(message)
-            print ("length", len(msg), binascii.hexlify(msg))
-            rule_ID = 98
-            sock.bind(rule_ID)
-            sock.send(msg)
-            return None # don't use downlink
-        else:
-            # for other technologies we wend a regular CoAP message
-            coap = CoAP.Message()
-            coap.new_header(type=CoAP.NON, code=CoAP.POST)
-            coap.add_option(CoAP.Uri_path, uri_path)
-            if unique_id:
-                coap.add_option(CoAP.Uri_path, unique_id)
-            # /proxy/mac_address
-            coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
-            coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
-            coap.add_payload(cbor.dumps(message))
-            coap.dump(hexa=True)
-            answer = CoAP.send_ack(sock, destination, coap)
-            return answer
-
-    def add_measures(current_measures, historic_measures):
-        for i in range(len(historic_measures)):
-            historic_measures[i] = historic_measures[i] + current_measures[i]
-        return historic_measures
-
-    def divide_measures(historic_measures, divisor):
-        for i in range(len(historic_measures)):
-            historic_measures[i] = int(historic_measures[i] / divisor)
-        return historic_measures
-
-
-    print ("MTU size is", MTU, "Payload size is", MTU-coap_header_size, "samples ", REPORT_PERIOD)
-    wlan = network.WLAN(mode=network.WLAN.STA)
-
 except OSError as err:
     time.sleep(30)
     print("an error ocurred")
     print("OS error: {0}".format(err))
     machine.reset()
 
+def send_coap_message(sock, destination, uri_path, message, unique_id = None):
+    if destination == "LORAWAN": # do SCHC compression
+        global lorawan_MID # /!\ change name to lorawan_token
+        """ SCHC compression for LoraWAN, use rule ID 98 stored in fPort,
+        followed by MID on 4 bits and 4 bits for an index on Uri-path.
+        the SCHC header is MMMM UUUU
+        """
+        # uri_index = ["humidity_l", "temperature_l", "pressure_l", "memory_l", None, None, None, None, None,
+        #           None, None, None, None, None, None, None,].index(uri_path)
+        # print("uri_index",uri_index)
+        print("MID", lorawan_MID)
+        print("MID", bin(lorawan_MID))
+        #schc_residue = (lorawan_MID << 4) | uri_index # MMMM and UUUU
+        schc_residue = (lorawan_MID & 0xFF)
+        print("SCHC_RESIDUE", bin(schc_residue))
+        print("SCHC_RESIDUE normal", schc_residue)
+        lorawan_MID += 1
+        lorawan_MID &= 0x0F # on 4 bits
+        if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
+        msg = struct.pack("!B", schc_residue) # add SCHC header to the message
+        msg += cbor.dumps(message)
+        print ("length", len(msg), binascii.hexlify(msg))
+        rule_ID = 98
+        sock.bind(rule_ID)
+        sock.send(msg)
+        return None # don't use downlink
+    else:
+        # for other technologies we wend a regular CoAP message
+        coap = CoAP.Message()
+        coap.new_header(type=CoAP.NON, code=CoAP.POST)
+        coap.add_option(CoAP.Uri_path, uri_path)
+        if unique_id:
+            coap.add_option(CoAP.Uri_path, unique_id)
+        # /proxy/mac_address
+        coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
+        coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
+        coap.add_payload(cbor.dumps(message))
+        coap.dump(hexa=True)
+        answer = CoAP.send_ack(sock, destination, coap)
+        return answer
+
+def add_measures(current_measures, historic_measures):
+    for i in range(len(historic_measures)):
+        historic_measures[i] = historic_measures[i] + current_measures[i]
+    return historic_measures
+
+def divide_measures(historic_measures, divisor):
+    for i in range(len(historic_measures)):
+        historic_measures[i] = int(historic_measures[i] / divisor)
+    return historic_measures
+
+
 lora_counter = 1
-lora_divisor = 2
+lora_divisor = 10
 historic_measures = [0] * 8
 
 while True:
@@ -194,7 +184,6 @@ while True:
                 print("In LORA section")
                 print("historic_measures: ", historic_measures)
                 measures = divide_measures(historic_measures, lora_divisor - 1)
-                #measures = [apin13(), apin14(), apin15(), apin16(), apin17(), apin18(), apin19(), apin20()]
                 print("Avg measures:", measures)
                 measures.insert(0, DEVICE_NAME)
                 print("Final LoRAWAN measures:", measures)
@@ -213,18 +202,18 @@ while True:
                 print(current_measures)
                 historic_measures = add_measures(current_measures, historic_measures)
                 print("Current historic_measures: ", historic_measures)
+                send_coap_message (s_wifi, destination, "moisture", current_measures)
                 current_measures.insert(0, DEVICE_NAME)
-                #send_coap_message (s, destination, "moisture", m)
                 send_coap_message (s_wifi, destination2, "humidity_w", current_measures, mac_address)
                 print("SUCCESS WiFi")
-                time.sleep(15) # wait for 3 minutes 20 seconds
+                time.sleep(200) # wait for 3 minutes 20 seconds
             else:
                 print("Here is WiFi not connected section")
                 pycom.heartbeat(False) # tu¸rn led to white
                 print ("WiFi disconnected")
                 wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-                #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
-                wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+                wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
+                #wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
                 time.sleep(1)
                 pycom.rgbled(0x7f0000) # red
                 time.sleep(1)
