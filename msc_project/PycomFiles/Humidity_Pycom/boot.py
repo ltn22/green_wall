@@ -7,8 +7,7 @@ import machine
 
 try:
     # setup as a station
-    ipaddr='10.51.0.245'
-    #ipaddr='10.51.0.242'
+    ipaddr='10.51.0.241'
     wlan = network.WLAN(mode=network.WLAN.STA)
     #Starts a Yellow Flag to show it started booting
     pycom.heartbeat(False)

@@ -11,7 +11,7 @@ the parameters are sent on a full CoAP message.
 """
 
 #device name for the pycom
-DEVICE_NAME = "LP3"
+DEVICE_NAME = "LP2"
 
 #CoAP Server for Gwen's database
 SERVER = "79.137.84.149" # change to your server's IP address, or SIGFOX or LORAWAN
@@ -26,7 +26,7 @@ destination2 = (SERVER, PORT2)
 SERVER2 = "LORAWAN"
 
 # assign a unique IP addresse to the PyCOM device
-ipaddr='10.51.0.245'
+ipaddr='10.51.0.241'
 
 
 import CoAP
@@ -63,7 +63,7 @@ try:
 
         # create an OTAA authentication parameters
         app_eui = binascii.unhexlify('0000000000000000'.replace(' ',''))
-        app_key = binascii.unhexlify('11223344556677881122334490345245'.replace(' ',''))   # Acklio
+        app_key = binascii.unhexlify('11223344556677881122334412345678'.replace(' ',''))   # Acklio
         lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key),  timeout=0)
 
         pycom.heartbeat(False) # turn led to white
@@ -172,7 +172,7 @@ while True:
             if not lora.has_joined():
                 print("Trying to connect to LoRAWAN")
                 lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key),  timeout=0)
-                time.sleep(30)
+                time.sleep(10)
             else:
                 print("In LORA section")
                 print("historic_measures: ", historic_measures)
@@ -183,7 +183,7 @@ while True:
                 send_coap_message (s_lora, "LORAWAN", "humidity_l", measures, dev_eui)
                 historic_measures = [0] * 8
                 print("Successful LoraWAN request sent.")
-                time.sleep(30)
+                time.sleep(10)
         else:
             if wlan.isconnected():
                 print("Here is WiFi connected section")
@@ -208,7 +208,7 @@ while True:
                 wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
                 #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
                 wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
-                time.sleep(1)
+                time.sleep(10)
                 pycom.rgbled(0x7f0000) # red
                 time.sleep(1)
                 pycom.rgbled(0x000000) # turn off led
