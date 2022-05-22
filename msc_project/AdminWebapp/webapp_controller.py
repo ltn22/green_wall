@@ -172,6 +172,16 @@ def deletesensor(id):
 #===================================
 # Method to show a Heatmap of Wall
 #===================================
+@app.route('/uploadsensormap', methods=['GET', 'POST'])
+def uploadsensormap():
+    if request.method == 'POST':
+        uploaded_file = request.files['file']
+        extension = uploaded_file.filename.split('.')[1]
+        if uploaded_file.filename != '':
+            uploaded_file.save('report_files/sensor_map.' + extension)
+        return redirect(url_for('uploadsensormap', message="Sensor Map Updated !"))
+    return render_template('upload_sensor_map.html')
+
 
 @app.route('/heatmap')
 def heatmap():
@@ -185,14 +195,7 @@ def heatmap():
     return render_template("wall_heatmap.html",sensor_list=sensor_list, sensor_count = len(sensor_list))
 
 
-@app.route('/uploadsensormap', methods=['GET', 'POST'])
-def uploadsensormap():
-    if request.method == 'POST':
-        uploaded_file = request.files['file']
-        if uploaded_file.filename != '':
-            uploaded_file.save(uploaded_file.filename)
-        return redirect(url_for('uploadsensormap'))
-    return render_template('upload_sensor_map.html')
+
 
 #===================================
 # Method to generate sensor report
