@@ -176,7 +176,7 @@ def deletesensor(id):
 def uploadsensormap():
     if request.method == 'POST':
         uploaded_file = request.files['file']
-        extension = uploaded_file.filename.split('.')[1]
+        extension = os.path.splitext(uploaded_file.filename)[1]
         if uploaded_file.filename != '':
             uploaded_file.save('report_files/sensor_map.' + extension)
         return redirect(url_for('uploadsensormap', message="Sensor Map Updated !"))
