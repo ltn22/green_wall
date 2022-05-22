@@ -36,15 +36,17 @@
                     <div class="btn-group" role="group">
                         <a id="list-btn" href="{{url_for('devices')}}"><button type="button" class="btn btn-link">Devices Home</button></a>
                     </div>
-                
+                    <div class="btn-group" role="group">
+                        <a id="list-btn" href="{{url_for('heatmap')}}"><button type="button" class="btn btn-warning">Wall Status</button></a>
+                    </div> 
                     <div class="btn-group" role="group">
                         <a id="list-btn" href="{{url_for('showsensormap')}}" target="_blank"><button type="button" class="btn btn-link">Sensor Map</button></a>
                     </div>
                 </div>
             </section>
             <section class="text-center">
-                <h1>Upload the Sensor Map Image</h1>
-                <h4>* Please upload .jpg or .jpeg only</h4>
+                <h2>Upload the Sensor Map Image</h2>
+                <h5>* Please upload .jpg or .jpeg only</h5>
                 <form method="POST" action="" enctype="multipart/form-data">
                     <input class="form-control form-control-lg" id="formFileLg" type="file" name="file" accept=".jpeg,.jpg">
                 </br>     
