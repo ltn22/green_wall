@@ -178,14 +178,18 @@ def uploadsensormap():
         uploaded_file = request.files['file']
         #extension = os.path.splitext(uploaded_file.filename)[1]
         if uploaded_file.filename != '':
-            uploaded_file.save('/static/images/sensor_map.jpg')
+            uploaded_file.save('./static/images/sensor_map.jpg')
         return render_template('upload_sensor_map.html', message="Sensor Map Updated !")
     return render_template('upload_sensor_map.html')
 
 @app.route('/showsensormap')
 def showsensormap():
-    map_filepath = '/static/images/sensor_map.jpg'
-    return render_template('show_sensor_map.html', sensor_map_image = map_filepath)
+    map_filepath = './static/images/sensor_map.jpg'
+    if os.path.exists(map_filepath):
+        return render_template('show_sensor_map.html', map_exists = True, sensor_map_image = map_filepath)
+    else:
+        return render_template('show_sensor_map.html', map_exists = False)   
+
 
 @app.route('/heatmap')
 def heatmap():

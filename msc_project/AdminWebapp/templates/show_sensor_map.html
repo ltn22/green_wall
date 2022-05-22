@@ -26,8 +26,13 @@
                 <h1>Green Wall - Sensor Map</h1>
             </div>
             
-            <div class='container'>
-                <img src="{{ sensor_map_image }}" alt="Sensor Map Image">
+            <div class="container text-center">
+                {% if map_exists %}
+                    <img src="{{ sensor_map_image }}" width="800" height="580" alt="Sensor Map Image">
+                {% else %}
+                    <h3>No sensor map image found. Please upload a sensor map <a id="list-btn" href="{{url_for('uploadsensormap')}}">here</a></h3>
+                {% endif %}    
+               
             </div>
     
 
