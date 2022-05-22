@@ -104,12 +104,6 @@ try:
     apin14 = adc.channel(pin="P14",attn=ADC.ATTN_11DB)
     apin13 = adc.channel(pin="P13",attn=ADC.ATTN_11DB)
 
-
-    if destination == "LORAWAN":
-        coap_header_size = 1 # SCHC header size
-    else:
-        coap_header_size = 25 #  coap header size approximated
-
 except OSError as err:
     time.sleep(30)
     print("an error ocurred")
@@ -212,8 +206,8 @@ while True:
                 pycom.heartbeat(False) # tu¸rn led to white
                 print ("WiFi disconnected")
                 wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-                wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
-                #wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+                #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
+                wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
                 time.sleep(1)
                 pycom.rgbled(0x7f0000) # red
                 time.sleep(1)

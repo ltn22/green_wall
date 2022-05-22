@@ -15,16 +15,16 @@ try:
     pycom.rgbled(0x7f7f00)
     print("Scanning for known wifi nets")
     wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-    wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
-    #wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+    #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
+    wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
     time.sleep_ms (500)
 
 
     while not wlan.isconnected():
         print ("WiFi not connected")
         wlan.ifconfig(config=(ipaddr, '255.255.255.0', '10.51.0.1', '192.108.119.134'))
-        wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
-        #wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
+        #wlan.connect('iPhone', auth=(network.WLAN.WPA2, 'vivianachima'))
+        wlan.connect('RSM-B25', auth=(network.WLAN.WEP, 'df72f6ce24'))
         time.sleep(1)
         pycom.rgbled(0x7f0000) # red
         time.sleep(1)
