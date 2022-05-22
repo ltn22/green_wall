@@ -182,6 +182,10 @@ def uploadsensormap():
         return render_template('upload_sensor_map.html', message="Sensor Map Updated !")
     return render_template('upload_sensor_map.html')
 
+@app.route('/showsensormap')
+def showsensormap():
+    map_filepath = '/report_files/sensor_map.jpg'
+    return render_template('show_sensor_map.html', sensor_map_image = map_filepath)
 
 @app.route('/heatmap')
 def heatmap():
