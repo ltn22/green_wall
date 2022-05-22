@@ -28,7 +28,19 @@
                 <h1>Green Wall Management App</h1>
             </div>
             <section>
-                <br>
+                <div class="btn-group btn-group-justified" role="group" aria-label="...">
+    
+                    <div class="btn-group" role="group">
+                        <a id="home-btn" href="{{url_for('home')}}"><button type="button" class="btn btn-link">Home</button></a>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <a id="list-btn" href="{{url_for('devices')}}"><button type="button" class="btn btn-link">Devices Home</button></a>
+                    </div>
+                
+                    <div class="btn-group" role="group">
+                        <a id="list-btn" href="{{url_for('showsensormap')}}" target="_blank"><button type="button" class="btn btn-link">Sensor Map</button></a>
+                    </div>
+                </div>
             </section>
             <section class="text-center">
                 <h1>Upload the Sensor Map Image</h1>
