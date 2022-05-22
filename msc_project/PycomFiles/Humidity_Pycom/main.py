@@ -1,34 +1,33 @@
 """
 This program runs on Python3 in terminal mode and Lopy4. On LoPy4, it sends
-information either on LoRaWAN Networks, Sigfox or Wi-Fi. Selection is done
+information either on LoRaWAN Network or Wi-Fi. Selection is done
 with the variable SERVER (see below). If a BME280 is connected to the LoPY,
 measurement are taken from the sensor, otherwise sensor's behavior is emulated.
 On python terminal values are emulated.
-Data are sent with CoAP on 4 different URI /temperature, /pressure, /humidity,
-/memory. On Sigfox, the SCHC compression of the CoAP header is provided and only
-one parameter is sent (it can be changed in the code). On LoRaWAN and Wi-Fi all
-the parameters are sent on a full CoAP message. Downlink is limited to error
-messages (4.xx and 5.xx) and not taken into account by the program.
+Data can be sent with CoAP on 4 different URI /temperature, /pressure, /humidity,
+/memory. On LoRaWAN, the SCHC compression of the CoAP header is provided and only
+one parameter is sent (it can be changed in the code). On Wi-Fi all
+the parameters are sent on a full CoAP message.
 """
 
-#device name
+#device name for the pycom
 DEVICE_NAME = "LP3"
 
-#Service for Gwen's database
+#CoAP Server for Gwen's database
 SERVER = "79.137.84.149" # change to your server's IP address, or SIGFOX or LORAWAN
 PORT   = 5683
 destination = (SERVER, PORT)
 
-#Service for Msc project
+#CoAP server for Msc project by Kaustubh
 PORT2 = 5684
 destination2 = (SERVER, PORT2)
 
-# change your secondary network to SIGFOX or LORAWAN
+#secondary network as LORAWAN
 SERVER2 = "LORAWAN"
 
-# assign some IP addresses to the PyCOM devices
+# assign a unique IP addresse to the PyCOM device
 ipaddr='10.51.0.245'
-#ipaddr='10.51.0.242'
+
 
 import CoAP
 import socket
@@ -42,6 +41,7 @@ import machine
 
 upython = (sys.implementation.name == "micropython")
 print (upython, sys.implementation.name)
+
 if upython:
     import kpn_senml.cbor_encoder as cbor #pycom
     import pycom
@@ -127,7 +127,7 @@ def send_coap_message(sock, destination, uri_path, message, unique_id = None):
         print("SCHC_RESIDUE", bin(schc_residue))
         print("SCHC_RESIDUE normal", schc_residue)
         lorawan_MID += 1
-        lorawan_MID &= 0x0F # on 4 bits
+        lorawan_MID &= 0x0F
         if lorawan_MID == 0: lorawan_MID = 1 # never use MID = 0
         msg = struct.pack("!B", schc_residue) # add SCHC header to the message
         msg += cbor.dumps(message)
@@ -137,13 +137,12 @@ def send_coap_message(sock, destination, uri_path, message, unique_id = None):
         sock.send(msg)
         return None # don't use downlink
     else:
-        # for other technologies we wend a regular CoAP message
+        # for WiFi we wend a regular CoAP message
         coap = CoAP.Message()
         coap.new_header(type=CoAP.NON, code=CoAP.POST)
         coap.add_option(CoAP.Uri_path, uri_path)
         if unique_id:
             coap.add_option(CoAP.Uri_path, unique_id)
-        # /proxy/mac_address
         coap.add_option (CoAP.Content_format, CoAP.Content_format_CBOR)
         coap.add_option (CoAP.No_Response, 0b00000010) # block 2.xx notification
         coap.add_payload(cbor.dumps(message))
@@ -196,6 +195,7 @@ while True:
                 print(current_measures)
                 historic_measures = add_measures(current_measures, historic_measures)
                 print("Current historic_measures: ", historic_measures)
+                # A call to the coap server from Gwen's project
                 send_coap_message (s_wifi, destination, "moisture", current_measures)
                 current_measures.insert(0, DEVICE_NAME)
                 send_coap_message (s_wifi, destination2, "humidity_w", current_measures, mac_address)
