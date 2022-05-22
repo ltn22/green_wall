@@ -44,12 +44,11 @@
             </section>
             <section class="text-center">
                 <h1>Upload the Sensor Map Image</h1>
-                <h4>* Please upload .jpg only</h4>
+                <h4>* Please upload .jpg or .jpeg only</h4>
                 <form method="POST" action="" enctype="multipart/form-data">
-                    <div>
-                        <input class="form-control form-control-lg" id="formFileLg" type="file" name="file" accept=".jpeg,.jpg">
-                      </div>
-                      <button type="submit" class="btn btn-success mb-3">Upload Map</button>
+                    <input class="form-control form-control-lg" id="formFileLg" type="file" name="file" accept=".jpeg,.jpg">
+                </br>     
+                    <button type="submit" class="btn btn-success mb-3">Upload Map</button>
                 </form>
             </section>
             {% if message %}
