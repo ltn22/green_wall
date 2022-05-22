@@ -11,7 +11,7 @@ the parameters are sent on a full CoAP message.
 """
 
 #device name for the pycom
-DEVICE_NAME = "LP2"
+DEVICE_NAME = "LP3"
 
 #CoAP Server for Gwen's database
 SERVER = "79.137.84.149" # change to your server's IP address, or SIGFOX or LORAWAN
@@ -26,7 +26,7 @@ destination2 = (SERVER, PORT2)
 SERVER2 = "LORAWAN"
 
 # assign a unique IP addresse to the PyCOM device
-ipaddr='10.51.0.241'
+ipaddr='10.51.0.245'
 
 
 import CoAP
@@ -63,7 +63,7 @@ try:
 
         # create an OTAA authentication parameters
         app_eui = binascii.unhexlify('0000000000000000'.replace(' ',''))
-        app_key = binascii.unhexlify('11223344556677881122334412345678'.replace(' ',''))   # Acklio
+        app_key = binascii.unhexlify('11223344556677881122334490345245'.replace(' ',''))   # Acklio
         lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key),  timeout=0)
 
         pycom.heartbeat(False) # turn led to white
@@ -162,7 +162,7 @@ def divide_measures(historic_measures, divisor):
 
 
 lora_counter = 1
-lora_divisor = 10
+lora_divisor = 4
 historic_measures = [0] * 8
 
 while True:
@@ -200,7 +200,7 @@ while True:
                 current_measures.insert(0, DEVICE_NAME)
                 send_coap_message (s_wifi, destination2, "humidity_w", current_measures, mac_address)
                 print("SUCCESS WiFi")
-                time.sleep(200) # wait for 3 minutes 20 seconds
+                time.sleep(20) # wait for 3 minutes 20 seconds
             else:
                 print("Here is WiFi not connected section")
                 pycom.heartbeat(False) # tu¸rn led to white

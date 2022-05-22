@@ -11,7 +11,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="{{url_for('static',filename='css/index.css')}}" rel="stylesheet" >
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 </head>
 
 <body>
@@ -22,19 +21,41 @@
             </div>
             <section class="text-center" >
             </br>
-                <h4>IMT Atlantique - Smart Grid Dashboard</h4>
+                <h4>IMT Atlantique</h4>
             </section>
-    
-            <section>
-            <br>
             
+            <div class="col-lg-12 text-center">
+                <h1>Green Wall Management App</h1>
+            </div>
+            <section>
+                <br>
             </section>
+            <section class="text-center">
+                <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                    <div class="btn-group" role="group">
+                        <a id="list-btn" href="{{url_for('sensor_report')}}"><button type="button" class="btn btn-success">Download Sensors Report</button></a>
+                    </div>
+                    &nbsp;&nbsp;
+                    <div class="btn-group" role="group">
+                        <a id="list-btn" href="{{url_for('measurement_report')}}"><button type="button" class="btn btn-warning">Download MeasurementsReport</button></a>
+                    </div>   
+                    &nbsp; &nbsp;
+                    
+                </div>
+            </section>
+            
+            <div class='container'>
+                {% block result %}{% endblock %}
+            </div>
+            <div class='container'>
+                {% block add %}{% endblock %}
+            </div>
+
         </div>
     </div>
-    <canvas id="myChart" width="400" height="400"></canvas>
 
-    
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src='http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js'></script> 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="{{url_for('static',filename='script/index.js')}}" type="text/javascript"></script>
 </body>

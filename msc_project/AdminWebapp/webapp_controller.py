@@ -188,6 +188,11 @@ def heatmap():
 # Method to generate sensor report
 #===================================
 
+@app.route('/reports')
+def reports():
+    return render_template("reports.html")
+
+
 @app.route('/sensor_report')
 def sensor_report():
     sensor_list = list(mongo.green_wall.sensors.find({}))
