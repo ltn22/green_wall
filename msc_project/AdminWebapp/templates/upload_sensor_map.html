@@ -50,13 +50,14 @@
                         <label for="formFileLg" class="form-label">Image File</label>
                         <input class="form-control form-control-lg" id="formFileLg" type="file" name="file" accept=".jpeg,.jpg">
                       </div>
-                      <button type="submit" class="btn btn-success mb-3">Confirm identity</button>
+                      <button type="submit" class="btn btn-success mb-3">Upload Map/button>
                 </form>
             </section>
-            
+            {% if message }
             <div class="alert alert-success" role="alert">
                 {{message}}
              </div>
+            {% endif %}  
     
 
         </div>
