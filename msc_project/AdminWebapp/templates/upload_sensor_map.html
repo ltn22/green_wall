@@ -31,25 +31,17 @@
                 <br>
             </section>
             <section class="text-center">
-                <div class="btn-group btn-group-justified" role="group" aria-label="...">
-                    <div class="btn-group" role="group">
-                        <a id="list-btn" href="{{url_for('sensor_report')}}"><button type="button" class="btn btn-success">Download Sensors Report</button></a>
-                    </div>
-                    &nbsp;&nbsp;
-                    <div class="btn-group" role="group">
-                        <a id="list-btn" href="{{url_for('measurement_report')}}"><button type="button" class="btn btn-warning">Download Measurements Report</button></a>
-                    </div>   
-                    &nbsp; &nbsp;
-                    
-                </div>
+                <h1>Upload the Sensor Map Image</h1>
+                <form method="POST" action="" enctype="multipart/form-data">
+                <p><input type="file" name="file" accept="image/*"></p>
+                <p><input type="submit" value="Submit"></p>
+                </form>
             </section>
             
             <div class='container'>
                 {% block result %}{% endblock %}
             </div>
-            <div class='container'>
-                {% block add %}{% endblock %}
-            </div>
+    
 
         </div>
     </div>

@@ -184,6 +184,16 @@ def heatmap():
         s['humidity_level'] = getHumidityLevel(s['last_value'])	
     return render_template("wall_heatmap.html",sensor_list=sensor_list, sensor_count = len(sensor_list))
 
+
+@app.route('/uploadsensormap', methods=['GET', 'POST'])
+def uploadsensormap():
+    if request.method == 'POST':
+        uploaded_file = request.files['file']
+        if uploaded_file.filename != '':
+            uploaded_file.save(uploaded_file.filename)
+        return redirect(url_for('uploadsensormap'))
+    return render_template('upload_sensor_map.html')
+
 #===================================
 # Method to generate sensor report
 #===================================
