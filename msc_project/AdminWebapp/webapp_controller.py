@@ -178,8 +178,8 @@ def uploadsensormap():
         uploaded_file = request.files['file']
         extension = os.path.splitext(uploaded_file.filename)[1]
         if uploaded_file.filename != '':
-            uploaded_file.save('report_files/sensor_map.' + extension)
-        return redirect(url_for('uploadsensormap', message="Sensor Map Updated !"))
+            uploaded_file.save('report_files/sensor_map' + extension)
+        return render_template('upload_sensor_map.html', message="Sensor Map Updated !")
     return render_template('upload_sensor_map.html')
 
 
