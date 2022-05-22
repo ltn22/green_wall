@@ -28,7 +28,7 @@
             
             <div class="container text-center">
                 {% if map_exists %}
-                    <img src="{{ sensor_map_image }}" width="800" height="580" alt="Sensor Map Image">
+                    <img src="{{ sensor_map_image }}" class="img-fluid" width="800" height="580" alt="Sensor Map Image">
                 {% else %}
                     <h3>No sensor map image found. Please upload a sensor map <a id="list-btn" href="{{url_for('uploadsensormap')}}">here</a></h3>
                 {% endif %}    
